@@ -1,0 +1,26 @@
+[project]
+name = "ai-sales-assistant"
+version = "1.0.0"
+description = "AI-powered sales assistant POC using Google's Gemini API"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.104.1",
+    "uvicorn>=0.24.0",
+    "python-dotenv>=1.0.0",
+    "google-genai>=1.19.0",
+    "pydantic>=2.5.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.scripts]
+ai-sales-assistant = "src.main:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src"]
+
+[tool.uv]
+dev-dependencies = []

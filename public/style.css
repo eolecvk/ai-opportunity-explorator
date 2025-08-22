@@ -1,0 +1,512 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 2.5rem;
+}
+
+header p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}
+
+.form-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+    margin-bottom: 20px;
+}
+
+.form-section h2 {
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.input-group input::placeholder {
+    color: #aab8c2;
+}
+
+.primary-button {
+    width: 100%;
+    padding: 15px 24px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.primary-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+}
+
+.primary-button:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.secondary-button {
+    padding: 12px 24px;
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 2px solid #e1e8ed;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.secondary-button:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.results-container {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 30px;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading p {
+    color: #6c757d;
+    font-size: 16px;
+}
+
+.results-content h2 {
+    color: #2c3e50;
+    margin-bottom: 25px;
+    font-size: 1.8rem;
+}
+
+.recommendations {
+    margin-bottom: 30px;
+}
+
+.recommendation-card {
+    background: #f8f9fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.recommendation-card h3 {
+    color: #2c3e50;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+}
+
+.recommendation-card p {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.recommendation-meta {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin-top: 15px;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.priority-high {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.priority-medium {
+    color: #ffc107;
+    font-weight: 600;
+}
+
+.priority-low {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.roi-value {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.timeline {
+    color: #6c757d;
+}
+
+.actions {
+    text-align: center;
+    padding-top: 20px;
+    border-top: 1px solid #e1e8ed;
+}
+
+.company-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+}
+
+.company-header h3 {
+    color: white;
+    margin-bottom: 8px;
+    font-size: 1.4rem;
+}
+
+.company-header p {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+.strategic-insights {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.strategic-insights h3 {
+    color: #1976d2;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.strategic-insights p {
+    color: #424242;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* ROI Calculator Integration */
+.roi-calculator-section {
+    margin-top: 20px;
+    border-top: 1px solid #e1e8ed;
+    padding-top: 15px;
+}
+
+.roi-toggle-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.roi-toggle-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+
+.roi-calculator {
+    background: #f8f9fa;
+    border: 1px solid #e1e8ed;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 15px;
+}
+
+.roi-calculator.hidden {
+    display: none;
+}
+
+.roi-calculator h4 {
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.roi-input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.roi-input-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.roi-input-group label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 5px;
+}
+
+.roi-input-group input,
+.roi-input-group select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+.roi-input-group input:focus,
+.roi-input-group select:focus {
+    outline: none;
+    border-color: #28a745;
+    box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.1);
+}
+
+.calculate-roi-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+}
+
+.calculate-roi-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+
+.calculate-roi-btn:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.roi-results {
+    margin-top: 20px;
+}
+
+.roi-results.hidden {
+    display: none;
+}
+
+.roi-results-content {
+    background: white;
+    border: 1px solid #d1ecf1;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.roi-results-content h5 {
+    color: #155724;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.roi-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.roi-metric {
+    text-align: center;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+.roi-metric-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.roi-metric-label {
+    font-size: 12px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.roi-comparison {
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 6px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.roi-comparison h6 {
+    color: #1976d2;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.comparison-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.comparison-row:last-child {
+    margin-bottom: 0;
+}
+
+.current-cost {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.ai-cost {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.improvement {
+    color: #1976d2;
+    font-weight: 600;
+}
+
+.business-case-summary {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 6px;
+    padding: 15px;
+}
+
+.business-case-summary h6 {
+    color: #856404;
+    margin-bottom: 10px;
+    font-size: 1rem;
+}
+
+.business-case-summary p {
+    color: #6c5400;
+    line-height: 1.6;
+    margin: 0;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .form-container,
+    .results-container {
+        padding: 20px;
+    }
+    
+    header h1 {
+        font-size: 2rem;
+    }
+    
+    .recommendation-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .roi-input-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .roi-metrics-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .comparison-row {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
