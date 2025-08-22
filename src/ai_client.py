@@ -2,13 +2,22 @@ import google.genai as genai
 import json
 import os
 from typing import Dict, List, Any
+from .catalog_manager import CatalogManager
 
 class GeminiAIClient:
     def __init__(self):
-        self.client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+        api_key = os.getenv('GEMINI_API_KEY')
+        if api_key and api_key != 'your_gemini_api_key_here':
+            self.client = genai.Client(api_key=api_key)
+        else:
+            self.client = None
         self.model = 'gemini-1.5-flash'
+        self.catalog_manager = CatalogManager()
     
     async def generate_response(self, user_message: str, context: Dict = None) -> str:
+        if not self.client:
+            return "I apologize, but AI chat functionality requires a valid API key configuration."
+            
         try:
             system_prompt = self._build_system_prompt(context or {})
             
@@ -95,6 +104,9 @@ Respond in JSON format:
 }}"""
 
         try:
+            if not self.client:
+                raise Exception("API client not configured")
+                
             response = self.client.models.generate_content(
                 model=self.model,
                 contents=qualification_prompt
@@ -112,73 +124,69 @@ Respond in JSON format:
             }
 
     async def generate_ai_project_recommendations(self, company_info: Dict) -> Dict[str, Any]:
-        """Generate specific AI project recommendations based on company profile and role"""
+        """Generate specific AI project recommendations from catalog based on company profile and role"""
         
-        role_focus = self._get_role_specific_focus(company_info.get('interlocutorRole', ''))
-        industry_specifics = self._get_industry_specifics(company_info.get('industry', ''))
+        industry = company_info.get('industry', '').lower()
+        company_size = company_info.get('companySize', 'medium')
+        role = company_info.get('interlocutorRole', 'CEO')
         
-        recommendation_prompt = f"""You are an AI project consultant analyzing a company for AI transformation opportunities.
-
-Company Profile:
-- Company: {company_info.get('companyName', 'N/A')}
-- Industry: {company_info.get('industry', 'N/A')}
-- Size: {company_info.get('companySize', 'N/A')}
-- Decision Maker Role: {company_info.get('interlocutorRole', 'N/A')}
-
-{role_focus}
-
-{industry_specifics}
-
-Generate 3-4 specific AI project recommendations that are:
-1. Highly relevant to the decision maker's priorities
-2. Proven in the industry with strong ROI
-3. Appropriate for the company size
-4. Prioritized by implementation ease and business impact
-
-For each project, provide:
-- **Title**: Specific, actionable project name
-- **Description**: Clear business problem and AI solution (2-3 sentences)
-- **Priority**: High/Medium/Low based on role relevance and ROI
-- **Expected ROI**: Specific percentage or multiple (e.g., "300% ROI" or "2.5x investment")
-- **Timeline**: Implementation duration (e.g., "3-6 months", "6-12 months")
-- **Investment Range**: Estimated cost (e.g., "$50K-$150K", "$200K-$500K")
-- **Business Value**: Key benefits for this specific role
-- **Implementation Notes**: Brief technical approach and requirements
-
-Also provide strategic insights specifically tailored to the decision maker's role and concerns.
-
-Respond in JSON format:
-{{
-  "projects": [
-    {{
-      "title": "<specific project name>",
-      "description": "<2-3 sentence description of problem and solution>",
-      "priority": "<High/Medium/Low>",
-      "expected_roi": "<specific ROI estimate>",
-      "timeline": "<implementation duration>",
-      "investment_range": "<cost estimate>",
-      "business_value": "<key benefits for this role>",
-      "implementation_notes": "<technical approach and requirements>"
-    }}
-  ],
-  "strategic_insights": "<2-3 sentences of strategic advice specifically for this role and industry>"
-}}"""
-
+        # Check if industry is supported in catalog
+        available_industries = self.catalog_manager.get_available_industries()
+        if industry not in available_industries:
+            # Fallback to demo recommendations for unsupported industries
+            return self._get_demo_recommendations(company_info)
+        
         try:
-            # Check if we have a valid API key
-            if not os.getenv('GEMINI_API_KEY') or os.getenv('GEMINI_API_KEY') == 'your_gemini_api_key_here':
-                # Return demo recommendations when no API key is configured
-                return self._get_demo_recommendations(company_info)
-            
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=recommendation_prompt
+            # Get filtered projects from catalog
+            filtered_projects = self.catalog_manager.filter_projects_by_criteria(
+                industry=industry,
+                company_size=company_size,
+                role=role,
+                limit=3
             )
-            return json.loads(response.text)
+            
+            # Format projects for response
+            formatted_projects = []
+            for project in filtered_projects:
+                formatted_project = self.catalog_manager.format_project_for_response(project, company_size)
+                formatted_projects.append(formatted_project)
+            
+            # Generate role-specific strategic insights
+            strategic_insights = self._generate_strategic_insights(role, industry, company_size)
+            
+            return {
+                "projects": formatted_projects,
+                "strategic_insights": strategic_insights
+            }
+            
         except Exception as e:
-            print(f"AI project recommendation error: {e}")
+            print(f"Catalog-based recommendation error: {e}")
             # Fallback to demo recommendations
             return self._get_demo_recommendations(company_info)
+    
+    def _generate_strategic_insights(self, role: str, industry: str, company_size: str) -> str:
+        """Generate strategic insights based on role, industry, and company size"""
+        role_insights = {
+            "CEO": f"As a CEO in the {industry} industry, focus on AI projects that demonstrate clear competitive advantage and revenue impact. Start with high-ROI implementations to build internal AI capabilities and stakeholder confidence.",
+            "CFO": f"From a financial perspective, prioritize AI projects with quantifiable cost savings and risk reduction. The {industry} sector offers strong opportunities for fraud prevention and process automation with measurable ROI.",
+            "CTO": f"Technical leadership in AI will be crucial for {industry} transformation. Focus on projects that enhance data infrastructure and create scalable AI platforms for future innovation.",
+            "COO": f"Operational AI implementations in {industry} can significantly improve efficiency and service quality. Start with process automation to demonstrate immediate value before scaling to more complex initiatives.",
+            "CMO": f"AI-driven personalization and customer insights are transforming {industry} marketing. Focus on projects that enhance customer experience and improve campaign effectiveness.",
+            "CXO": f"Customer experience differentiation through AI is essential in {industry}. Prioritize projects that reduce friction, improve service quality, and create personalized experiences."
+        }
+        
+        size_context = {
+            'startup': 'For startups, focus on quick wins that provide immediate competitive advantage with minimal infrastructure investment.',
+            'small': 'Small companies should prioritize cost-effective AI solutions that scale with growth and provide clear operational benefits.',
+            'medium': 'Medium-sized companies have the resources to implement comprehensive AI solutions that can transform core business processes.',
+            'large': 'Large enterprises should focus on AI initiatives that can be scaled across multiple business units and geographies.',
+            'enterprise': 'Enterprise-level AI implementations should drive industry leadership and create new business models through advanced AI capabilities.'
+        }
+        
+        base_insight = role_insights.get(role, f"AI transformation in {industry} requires strategic focus on high-impact, measurable initiatives.")
+        size_insight = size_context.get(company_size, "Scale AI implementations according to organizational readiness and resource availability.")
+        
+        return f"{base_insight} {size_insight}"
     
     def _get_demo_recommendations(self, company_info: Dict) -> Dict[str, Any]:
         """Generate demo recommendations when API is not available"""

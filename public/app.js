@@ -114,8 +114,8 @@ class AIDiscoveryApp {
                     <span class="investment">${project.investment_range}</span>
                 </div>
             </div>
-            ${project.business_value ? `<p><strong>Business Value:</strong> ${project.business_value}</p>` : ''}
-            ${project.implementation_notes ? `<p><strong>Implementation:</strong> ${project.implementation_notes}</p>` : ''}
+            ${project.business_value ? `<div class="business-value-section"><strong>🎯 Business Value:</strong> <span>${project.business_value}</span></div>` : ''}
+            ${project.implementation_notes ? `<div class="implementation-section"><strong>⚙️ Implementation:</strong> <span>${project.implementation_notes}</span></div>` : ''}
             
             <div class="roi-calculator-section">
                 <button class="roi-toggle-btn" onclick="this.parentElement.parentElement.querySelector('.roi-calculator').classList.toggle('hidden')">
