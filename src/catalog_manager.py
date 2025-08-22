@@ -7,6 +7,18 @@ class CatalogManager:
         self.catalog_path = os.path.join(os.path.dirname(__file__), 'data', 'catalog.json')
         self.catalog_data = self._load_catalog()
     
+    def _format_currency_range(self, min_cost: int, max_cost: int) -> str:
+        """Format currency range with M USD for millions, K for thousands"""
+        def format_single(value):
+            if value >= 1000:
+                return f"${value / 1000:.1f}M USD"
+            else:
+                return f"${value}K"
+        
+        min_formatted = format_single(min_cost)
+        max_formatted = format_single(max_cost)
+        return f"{min_formatted}-{max_formatted}"
+    
     def _load_catalog(self) -> Dict[str, List[Dict]]:
         """Load the catalog data from JSON file"""
         try:
@@ -132,16 +144,25 @@ class CatalogManager:
         else:
             timeline = '8-12 months'
         
-        return {
+        result = {
             'title': project.get('title', ''),
             'description': project.get('description', ''),
             'priority': project.get('priority', 'medium').title(),
             'expected_roi': roi_estimates.get(project.get('priority', 'medium'), '150% ROI within 15 months'),
             'timeline': timeline,
-            'investment_range': f'${impl_cost}K-${impl_cost + ongoing_cost}K',
+            'investment_range': self._format_currency_range(impl_cost, impl_cost + ongoing_cost),
             'business_value': self._generate_business_value(project, company_size),
             'implementation_notes': self._generate_implementation_notes(project)
         }
+        
+        # Add ROI calculator data if available
+        if 'roi_calculator' in project:
+            result['roi_calculator'] = project['roi_calculator']
+            # Add implementation and ongoing costs to the variables for the formula
+            result['roi_calculator']['implementation_cost'] = impl_cost * 1000  # Convert K to actual value
+            result['roi_calculator']['ongoing_cost'] = ongoing_cost * 1000
+        
+        return result
     
     def _generate_business_value(self, project: Dict[str, Any], company_size: str) -> str:
         """Generate business value description based on project and company size"""

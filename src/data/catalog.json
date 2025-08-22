@@ -1,486 +1,188 @@
 {
   "banking": [
     {
-    "title": "AI for Credit Scoring & Risk Assessment",
-    "description": "AI models analyze a variety of data sources (transactions, credit reports, social data) to create more accurate and fair credit scoring systems.",
-    "priority": "critical",
-    "implementation_cost": 800,
-    "ongoing_cost": 150,
-    "roi_calculation": "ROI = (reduction in default losses + increased loan approval revenue - implementation and ongoing costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Fraud Detection and Prevention",
-    "description": "AI systems track transaction patterns in real-time, identifying anomalies to prevent fraudulent activities and reduce financial crimes.",
-    "priority": "critical",
-    "implementation_cost": 1200,
-    "ongoing_cost": 200,
-    "roi_calculation": "ROI = (fraud losses prevented + operational cost savings - system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Customer Service: Chatbots & Virtual Assistants",
-    "description": "AI chatbots and virtual assistants provide 24/7 support for customer inquiries, account management, and transaction processing.",
-    "priority": "high",
-    "implementation_cost": 500,
-    "ongoing_cost": 80,
-    "roi_calculation": "ROI = (FTE cost reduction + increased customer satisfaction revenue - chatbot costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Personalized Banking Products",
-    "description": "AI tailors product recommendations based on individual customer behaviors, helping banks offer customized loans, credit cards, and financial services.",
-    "priority": "high",
-    "implementation_cost": 600,
-    "ongoing_cost": 100,
-    "roi_calculation": "ROI = (increased cross-sell revenue + improved conversion rates - personalization system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Predictive Analytics in Wealth Management",
-    "description": "AI analyzes market trends and financial data to forecast asset values, helping wealth managers and clients make better investment decisions.",
-    "priority": "medium",
-    "implementation_cost": 750,
-    "ongoing_cost": 120,
-    "roi_calculation": "ROI = (increased AUM fees + improved portfolio performance - analytics platform costs) / total investment × 100"
-  },
-  {
-    "title": "AI in Regulatory Compliance (RegTech)",
-    "description": "AI automates the process of monitoring regulatory changes, ensuring compliance, and preventing financial crimes like money laundering.",
-    "priority": "critical",
-    "implementation_cost": 900,
-    "ongoing_cost": 180,
-    "roi_calculation": "ROI = (regulatory fine avoidance + compliance FTE reduction - RegTech costs) / total investment × 100"
-  },
-  {
-    "title": "AI in Customer Onboarding & KYC (Know Your Customer)",
-    "description": "AI speeds up the onboarding process by automating customer identity verification through document scanning, biometric recognition, and real-time data checks.",
-    "priority": "high",
-    "implementation_cost": 650,
-    "ongoing_cost": 90,
-    "roi_calculation": "ROI = (onboarding cost reduction + faster revenue realization - KYC system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Sentiment Analysis in Customer Feedback",
-    "description": "AI analyzes customer feedback and social media to gauge customer sentiment, allowing banks to adjust services and improve satisfaction.",
-    "priority": "low",
-    "implementation_cost": 250,
-    "ongoing_cost": 40,
-    "roi_calculation": "ROI = (customer retention improvement revenue + service cost optimization - sentiment analysis costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Loan Default Prediction",
-    "description": "Machine learning models predict the likelihood of loan defaults based on customer data, enabling banks to make better lending decisions.",
-    "priority": "high",
-    "implementation_cost": 700,
-    "ongoing_cost": 110,
-    "roi_calculation": "ROI = (reduced default losses + improved portfolio yield - prediction model costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Anti-Money Laundering (AML)",
-    "description": "AI models detect unusual transaction patterns to identify potential money laundering activities, reducing compliance risks.",
-    "priority": "critical",
-    "implementation_cost": 1100,
-    "ongoing_cost": 220,
-    "roi_calculation": "ROI = (regulatory penalty avoidance + investigation cost reduction - AML system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Dynamic Pricing of Financial Products",
-    "description": "AI models help banks dynamically adjust the pricing of loans, insurance, and credit products based on market conditions and customer profiles.",
-    "priority": "medium",
-    "implementation_cost": 550,
-    "ongoing_cost": 85,
-    "roi_calculation": "ROI = (margin improvement + market share gains - dynamic pricing system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Credit Card Fraud Prevention",
-    "description": "AI detects fraudulent credit card transactions in real-time by learning patterns and flagging any anomalies immediately.",
-    "priority": "critical",
-    "implementation_cost": 850,
-    "ongoing_cost": 140,
-    "roi_calculation": "ROI = (fraud losses prevented + reduced chargeback costs - fraud system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Investment Portfolio Optimization",
-    "description": "AI uses advanced algorithms to automatically rebalance portfolios and optimize asset allocation based on customer goals and risk profiles.",
-    "priority": "medium",
-    "implementation_cost": 600,
-    "ongoing_cost": 95,
-    "roi_calculation": "ROI = (improved portfolio returns + increased management fees - optimization system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Algorithmic Trading",
-    "description": "AI-driven trading algorithms predict market movements and automate buying/selling decisions in real-time, optimizing returns and managing risk.",
-    "priority": "low",
-    "implementation_cost": 1500,
-    "ongoing_cost": 300,
-    "roi_calculation": "ROI = (trading profit improvement + reduced trading costs - algo trading system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Document Processing in Loan Approvals",
-    "description": "AI automates the extraction, verification, and processing of documents required for loan applications, speeding up approval times.",
-    "priority": "high",
-    "implementation_cost": 450,
-    "ongoing_cost": 70,
-    "roi_calculation": "ROI = (processing cost reduction + faster loan origination revenue - document AI costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Mortgage Application Processing",
-    "description": "AI automates the mortgage application review process, analyzing financial data to quickly approve or reject applications.",
-    "priority": "high",
-    "implementation_cost": 500,
-    "ongoing_cost": 75,
-    "roi_calculation": "ROI = (processing efficiency gains + increased mortgage volume revenue - automation costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Predictive Customer Retention",
-    "description": "Machine learning algorithms analyze customer behaviors to predict churn and proactively offer retention strategies (offers, incentives).",
-    "priority": "high",
-    "implementation_cost": 400,
-    "ongoing_cost": 65,
-    "roi_calculation": "ROI = (retained customer lifetime value + reduced acquisition costs - retention system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Chat-Based Financial Advisors",
-    "description": "AI-based financial advisors interact with customers via chat to provide personalized investment advice, savings tips, and financial planning guidance.",
-    "priority": "medium",
-    "implementation_cost": 350,
-    "ongoing_cost": 55,
-    "roi_calculation": "ROI = (advisory fee revenue + cost per advice session reduction - AI advisor costs) / total investment × 100"
-  },
-  {
-    "title": "AI in Debt Collection",
-    "description": "AI tools predict the best strategies for debt collection by analyzing customer data, payment behavior, and communication preferences.",
-    "priority": "medium",
-    "implementation_cost": 300,
-    "ongoing_cost": 50,
-    "roi_calculation": "ROI = (improved collection rates + reduced collection costs - AI collection system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Real-Time Risk Management",
-    "description": "AI models continuously monitor the bank's financial and operational data, identifying emerging risks and suggesting mitigation strategies.",
-    "priority": "high",
-    "implementation_cost": 1000,
-    "ongoing_cost": 175,
-    "roi_calculation": "ROI = (loss avoidance + capital efficiency improvements - risk management system costs) / total investment × 100"
-  },
-  {
-    "title": "AI in Financial Forecasting",
-    "description": "AI leverages historical financial data and market trends to forecast future revenue, expenses, and other critical financial metrics.",
-    "priority": "medium",
-    "implementation_cost": 400,
-    "ongoing_cost": 60,
-    "roi_calculation": "ROI = (improved capital allocation returns + reduced forecasting errors - forecasting system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Investment Research",
-    "description": "AI tools automate the process of analyzing financial markets, news, and reports to provide actionable insights for institutional investors.",
-    "priority": "low",
-    "implementation_cost": 550,
-    "ongoing_cost": 90,
-    "roi_calculation": "ROI = (research efficiency gains + improved investment returns - research platform costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Personalized Marketing Campaigns",
-    "description": "AI analyzes customer data to craft personalized marketing messages and offers, improving conversion rates and customer engagement.",
-    "priority": "medium",
-    "implementation_cost": 350,
-    "ongoing_cost": 55,
-    "roi_calculation": "ROI = (increased campaign conversion revenue + reduced marketing waste - personalization costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Wealth Management Chatbots",
-    "description": "AI-driven chatbots assist wealth managers by providing insights and personalized investment strategies based on clients' financial data.",
-    "priority": "low",
-    "implementation_cost": 300,
-    "ongoing_cost": 45,
-    "roi_calculation": "ROI = (advisor productivity gains + increased client acquisition - chatbot costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Automated Financial Reporting",
-    "description": "AI automates the generation of financial reports, improving accuracy, speed, and compliance with accounting standards.",
-    "priority": "medium",
-    "implementation_cost": 450,
-    "ongoing_cost": 70,
-    "roi_calculation": "ROI = (reporting FTE reduction + error reduction savings - automation costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Fraudulent Loan Detection",
-    "description": "AI tools track patterns in loan applications to detect potentially fraudulent behavior, reducing financial loss and improving security.",
-    "priority": "high",
-    "implementation_cost": 600,
-    "ongoing_cost": 95,
-    "roi_calculation": "ROI = (fraudulent loan loss prevention + investigation cost reduction - detection system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Cybersecurity in Banking",
-    "description": "AI-driven systems identify and mitigate cyber threats by analyzing network traffic, transaction data, and user behavior to prevent breaches.",
-    "priority": "critical",
-    "implementation_cost": 1400,
-    "ongoing_cost": 250,
-    "roi_calculation": "ROI = (breach cost avoidance + security operations efficiency - cybersecurity AI costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Digital Payment Fraud Detection",
-    "description": "AI systems flag suspicious digital payment transactions in real-time, preventing fraud in mobile and online payments.",
-    "priority": "critical",
-    "implementation_cost": 750,
-    "ongoing_cost": 125,
-    "roi_calculation": "ROI = (digital fraud losses prevented + customer trust retention - fraud detection costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Business Intelligence in Banking",
-    "description": "AI analyzes vast amounts of data to provide actionable insights on business performance, customer trends, and operational efficiency.",
-    "priority": "medium",
-    "implementation_cost": 500,
-    "ongoing_cost": 80,
-    "roi_calculation": "ROI = (decision-making improvements + operational efficiency gains - BI platform costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Financial Planning Automation",
-    "description": "AI-driven financial planning tools automatically create, track, and update financial plans based on customer goals and life changes.",
-    "priority": "low",
-    "implementation_cost": 400,
-    "ongoing_cost": 60,
-    "roi_calculation": "ROI = (planning fee revenue + advisor efficiency gains - automation platform costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Customer Data Privacy Compliance",
-    "description": "AI models help banks manage and protect customer data by ensuring compliance with privacy laws (like GDPR) and preventing breaches.",
-    "priority": "high",
-    "implementation_cost": 650,
-    "ongoing_cost": 100,
-    "roi_calculation": "ROI = (privacy violation penalty avoidance + data management efficiency - privacy system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Stress Testing and Scenario Analysis",
-    "description": "AI-powered stress tests simulate financial crises or market shocks to predict a bank's resilience and determine capital needs.",
-    "priority": "high",
-    "implementation_cost": 800,
-    "ongoing_cost": 130,
-    "roi_calculation": "ROI = (regulatory capital optimization + risk-adjusted returns improvement - stress testing costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Voice Recognition in Banking",
-    "description": "AI-driven voice recognition tools enable customers to securely access and perform banking transactions via voice commands.",
-    "priority": "low",
-    "implementation_cost": 450,
-    "ongoing_cost": 70,
-    "roi_calculation": "ROI = (call center cost reduction + customer satisfaction improvements - voice system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Digital Banking Security (Biometrics)",
-    "description": "AI-based biometrics (facial recognition, fingerprint scanning) are integrated into banking apps for secure and frictionless customer authentication.",
-    "priority": "high",
-    "implementation_cost": 550,
-    "ongoing_cost": 85,
-    "roi_calculation": "ROI = (fraud reduction + password reset cost savings - biometric system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Robo-Advisory in Investments",
-    "description": "Robo-advisors powered by AI provide automated, low-cost investment advice by analyzing a client's financial situation and market conditions.",
-    "priority": "medium",
-    "implementation_cost": 700,
-    "ongoing_cost": 110,
-    "roi_calculation": "ROI = (new client acquisition revenue + reduced advisory costs - robo-advisor platform costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Enhanced Financial Forecasting",
-    "description": "Machine learning algorithms provide accurate financial forecasts by analyzing multiple data points and identifying trends.",
-    "priority": "medium",
-    "implementation_cost": 450,
-    "ongoing_cost": 70,
-    "roi_calculation": "ROI = (forecast accuracy improvement benefits + planning efficiency - ML forecasting costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Regulatory Reporting Automation",
-    "description": "AI automates the process of generating compliance reports for regulators, reducing manual effort and ensuring timely submission.",
-    "priority": "high",
-    "implementation_cost": 550,
-    "ongoing_cost": 90,
-    "roi_calculation": "ROI = (reporting FTE reduction + late filing penalty avoidance - automation costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Asset and Liability Management",
-    "description": "AI models forecast the bank's cash flow and liquidity needs, optimizing asset and liability management to minimize financial risks.",
-    "priority": "high",
-    "implementation_cost": 750,
-    "ongoing_cost": 120,
-    "roi_calculation": "ROI = (interest margin optimization + liquidity cost reduction - ALM system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Loan Fraud Prevention in Small Business Lending",
-    "description": "AI helps small business lenders assess risk and detect fraud by analyzing financial records, market trends, and borrower behavior.",
-    "priority": "medium",
-    "implementation_cost": 500,
-    "ongoing_cost": 80,
-    "roi_calculation": "ROI = (SME fraud loss prevention + underwriting efficiency - fraud prevention costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Real-Time Trading Strategy Adjustments",
-    "description": "AI dynamically adjusts trading strategies in real-time based on market conditions, minimizing risks and optimizing returns.",
-    "priority": "low",
-    "implementation_cost": 1200,
-    "ongoing_cost": 200,
-    "roi_calculation": "ROI = (trading performance improvement + risk reduction benefits - trading AI costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Peer-to-Peer (P2P) Lending Platforms",
-    "description": "AI matches borrowers with lenders on P2P lending platforms, ensuring more efficient loan approvals and better risk assessment.",
-    "priority": "low",
-    "implementation_cost": 400,
-    "ongoing_cost": 65,
-    "roi_calculation": "ROI = (platform transaction fees + default rate improvement - P2P AI costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Automated Tax Compliance",
-    "description": "AI tools automatically track tax regulations and calculate tax obligations for individuals and businesses, ensuring compliance with tax laws.",
-    "priority": "medium",
-    "implementation_cost": 350,
-    "ongoing_cost": 55,
-    "roi_calculation": "ROI = (tax service revenue + compliance cost reduction - tax automation costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Customer Segmentation and Profiling",
-    "description": "AI segments customers into different groups based on behavioral, demographic, and transactional data, enabling more targeted services.",
-    "priority": "high",
-    "implementation_cost": 450,
-    "ongoing_cost": 70,
-    "roi_calculation": "ROI = (targeted product revenue increase + marketing efficiency - segmentation costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Social Media Sentiment Analysis",
-    "description": "AI analyzes social media sentiment to assess the bank's reputation, customer satisfaction, and market trends.",
-    "priority": "low",
-    "implementation_cost": 200,
-    "ongoing_cost": 35,
-    "roi_calculation": "ROI = (reputation management benefits + customer insight value - sentiment analysis costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Blockchain-Based Smart Contracts",
-    "description": "AI integrates with blockchain technology to create self-executing smart contracts that automate processes like payments and loan disbursements.",
-    "priority": "low",
-    "implementation_cost": 800,
-    "ongoing_cost": 130,
-    "roi_calculation": "ROI = (contract execution cost savings + dispute reduction - smart contract platform costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Real-Time Portfolio Risk Management",
-    "description": "AI systems monitor portfolio performance in real-time, flagging any risk factors, and suggesting adjustments to mitigate potential losses.",
-    "priority": "medium",
-    "implementation_cost": 650,
-    "ongoing_cost": 100,
-    "roi_calculation": "ROI = (risk-adjusted return improvement + loss mitigation - risk management costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Debt Recovery Optimization",
-    "description": "AI tools optimize the debt recovery process by analyzing payment patterns and offering targeted recovery strategies.",
-    "priority": "medium",
-    "implementation_cost": 350,
-    "ongoing_cost": 55,
-    "roi_calculation": "ROI = (recovery rate improvement + collection cost reduction - optimization system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Cross-Border Payment Fraud Prevention",
-    "description": "AI systems track cross-border payments to identify and prevent fraudulent activities that may not be detected through traditional systems.",
-    "priority": "high",
-    "implementation_cost": 700,
-    "ongoing_cost": 115,
-    "roi_calculation": "ROI = (international fraud loss prevention + compliance benefits - cross-border AI costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Predictive Maintenance in ATMs",
-    "description": "AI predicts when ATMs require maintenance or are likely to break down, improving uptime and reducing operational costs.",
-    "priority": "low",
-    "implementation_cost": 250,
-    "ongoing_cost": 40,
-    "roi_calculation": "ROI = (maintenance cost reduction + uptime improvement revenue - predictive system costs) / total investment × 100"
-  },
-  {
-    "title": "AI for Financial Inclusion",
-    "description": "AI-driven solutions are used to provide financial services to underserved populations, using alternative data to assess creditworthiness for those without traditional credit histories.",
-    "priority": "medium",
-    "implementation_cost": 500,
-    "ongoing_cost": 80,
-    "roi_calculation": "ROI = (new market revenue + social impact value + regulatory incentives - inclusion platform costs) / total investment × 100"
-  }
+      "title": "Advanced Credit Scoring & Risk Assessment",
+      "description": "ML models analyze diverse data sources (transactions, credit reports, alternative data) to create more accurate, fair credit scoring systems and loan default predictions.",
+      "priority": "critical",
+      "implementation_cost": 950,
+      "ongoing_cost": 170,
+      "roi_calculator": {
+        "formula": "(reduction_in_default_losses + increased_loan_approval_revenue - implementation_cost - (ongoing_cost * years)) / (implementation_cost + (ongoing_cost * years)) * 100",
+        "variables": {
+          "reduction_in_default_losses": {
+            "label": "Reduction in Default Losses",
+            "type": "currency",
+            "default": 2500,
+            "min": 0,
+            "max": 10000,
+            "step": 100,
+            "tooltip": "Annual savings from improved credit scoring accuracy"
+          },
+          "increased_loan_approval_revenue": {
+            "label": "Increased Loan Approval Revenue",
+            "type": "currency",
+            "default": 1800,
+            "min": 0,
+            "max": 5000,
+            "step": 50,
+            "tooltip": "Additional revenue from better risk assessment enabling more approvals"
+          },
+          "years": {
+            "label": "Time Horizon (Years)",
+            "type": "number",
+            "default": 3,
+            "min": 1,
+            "max": 10,
+            "step": 1,
+            "tooltip": "Number of years for ROI calculation"
+          }
+        },
+        "display_format": "percentage",
+        "breakeven_months": "implementation_cost / ((reduction_in_default_losses + increased_loan_approval_revenue - ongoing_cost) / 12)"
+      }
+    },
+    {
+      "title": "Real-Time Fraud Detection & Prevention",
+      "description": "Comprehensive fraud prevention across all channels - credit cards, digital payments, transactions, and loan applications - using pattern recognition and anomaly detection.",
+      "priority": "critical",
+      "implementation_cost": 1400,
+      "ongoing_cost": 250,
+      "roi_calculator": {
+        "formula": "(fraud_losses_prevented + operational_cost_savings - implementation_cost - (ongoing_cost * years)) / (implementation_cost + (ongoing_cost * years)) * 100",
+        "variables": {
+          "fraud_losses_prevented": {
+            "label": "Fraud Losses Prevented",
+            "type": "currency",
+            "default": 3500,
+            "min": 0,
+            "max": 15000,
+            "step": 100,
+            "tooltip": "Annual amount of fraud prevented across all channels"
+          },
+          "operational_cost_savings": {
+            "label": "Operational Cost Savings",
+            "type": "currency",
+            "default": 800,
+            "min": 0,
+            "max": 3000,
+            "step": 50,
+            "tooltip": "Annual savings from automated fraud detection vs manual review"
+          },
+          "years": {
+            "label": "Time Horizon (Years)",
+            "type": "number",
+            "default": 3,
+            "min": 1,
+            "max": 10,
+            "step": 1,
+            "tooltip": "Number of years for ROI calculation"
+          }
+        },
+        "display_format": "percentage",
+        "breakeven_months": "implementation_cost / ((fraud_losses_prevented + operational_cost_savings - ongoing_cost) / 12)"
+      }
+    },
+    {
+      "title": "Intelligent Customer Service Platform",
+      "description": "24/7 chatbots, virtual assistants, and voice recognition systems providing comprehensive customer support, account management, and transaction processing.",
+      "priority": "high",
+      "implementation_cost": 800,
+      "ongoing_cost": 130,
+      "roi_calculator": {
+        "formula": "(fte_cost_reduction + call_center_savings + customer_satisfaction_revenue - implementation_cost - (ongoing_cost * years)) / (implementation_cost + (ongoing_cost * years)) * 100",
+        "variables": {
+          "fte_cost_reduction": {
+            "label": "FTE Cost Reduction",
+            "type": "currency",
+            "default": 1200,
+            "min": 0,
+            "max": 5000,
+            "step": 100,
+            "tooltip": "Annual savings from reduced headcount needs"
+          },
+          "call_center_savings": {
+            "label": "Call Center Savings",
+            "type": "currency",
+            "default": 600,
+            "min": 0,
+            "max": 2000,
+            "step": 50,
+            "tooltip": "Annual operational savings from automated responses"
+          },
+          "customer_satisfaction_revenue": {
+            "label": "Customer Satisfaction Revenue",
+            "type": "currency",
+            "default": 400,
+            "min": 0,
+            "max": 1500,
+            "step": 50,
+            "tooltip": "Additional revenue from improved customer experience"
+          },
+          "years": {
+            "label": "Time Horizon (Years)",
+            "type": "number",
+            "default": 3,
+            "min": 1,
+            "max": 10,
+            "step": 1,
+            "tooltip": "Number of years for ROI calculation"
+          }
+        },
+        "display_format": "percentage",
+        "breakeven_months": "implementation_cost / ((fte_cost_reduction + call_center_savings + customer_satisfaction_revenue - ongoing_cost) / 12)"
+      }
+    }
   ],
   "insurance": [
     {
-      "title": "AI for Claims Processing Automation",
-      "description": "AI automates claims intake, assessment, and approval processes, reducing processing time from days to hours while improving accuracy and fraud detection.",
-      "priority": "critical",
-      "implementation_cost": 900,
-      "ongoing_cost": 180,
-      "roi_calculation": "ROI = (claims processing cost reduction + fraud prevention savings - implementation costs) / total investment × 100"
-    },
-    {
-      "title": "AI for Risk Assessment and Underwriting",
-      "description": "Machine learning models analyze vast datasets to assess risk more accurately, enabling better pricing decisions and portfolio management.",
+      "title": "Intelligent Claims Processing & Automation",
+      "description": "End-to-end claims automation including intake, assessment, document processing with OCR, and approval workflows reducing processing time from days to hours.",
       "priority": "critical",
       "implementation_cost": 1100,
       "ongoing_cost": 220,
-      "roi_calculation": "ROI = (improved risk selection + optimized pricing - system costs) / total investment × 100"
-    },
-    {
-      "title": "AI for Fraud Detection in Insurance Claims",
-      "description": "AI systems detect fraudulent claims by analyzing patterns, cross-referencing data, and identifying anomalies in real-time.",
-      "priority": "critical",
-      "implementation_cost": 800,
-      "ongoing_cost": 160,
-      "roi_calculation": "ROI = (fraud losses prevented + investigation cost reduction - detection system costs) / total investment × 100"
-    },
-    {
-      "title": "AI-Powered Customer Service Chatbots",
-      "description": "Intelligent chatbots handle policy inquiries, claims status updates, and basic customer service tasks 24/7, improving customer satisfaction.",
-      "priority": "high",
-      "implementation_cost": 400,
-      "ongoing_cost": 80,
-      "roi_calculation": "ROI = (customer service cost reduction + improved satisfaction revenue - chatbot costs) / total investment × 100"
-    },
-    {
-      "title": "AI for Personalized Insurance Products",
-      "description": "AI analyzes customer data to create personalized insurance products and pricing, improving customer retention and acquisition.",
-      "priority": "high",
-      "implementation_cost": 650,
-      "ongoing_cost": 130,
-      "roi_calculation": "ROI = (increased policy sales + improved retention - personalization costs) / total investment × 100"
-    },
-    {
-      "title": "AI for Predictive Analytics in Life Insurance",
-      "description": "Machine learning models predict life expectancy and health risks more accurately, enabling better policy pricing and risk management.",
-      "priority": "high",
-      "implementation_cost": 750,
-      "ongoing_cost": 150,
-      "roi_calculation": "ROI = (improved actuarial accuracy + reduced claim costs - analytics platform costs) / total investment × 100"
-    },
-    {
-      "title": "AI for Regulatory Compliance (InsurTech)",
-      "description": "AI automates compliance monitoring, reporting, and ensures adherence to evolving insurance regulations across different jurisdictions.",
-      "priority": "high",
-      "implementation_cost": 600,
-      "ongoing_cost": 120,
-      "roi_calculation": "ROI = (compliance penalty avoidance + regulatory efficiency - InsurTech costs) / total investment × 100"
-    },
-    {
-      "title": "AI for Document Processing and OCR",
-      "description": "Intelligent document processing extracts and validates information from insurance documents, medical records, and claims forms automatically.",
-      "priority": "medium",
-      "implementation_cost": 350,
-      "ongoing_cost": 70,
-      "roi_calculation": "ROI = (document processing efficiency + error reduction - automation costs) / total investment × 100"
-    },
-    {
-      "title": "AI for Customer Retention and Churn Prevention",
-      "description": "Predictive models identify customers likely to cancel policies and trigger personalized retention campaigns to reduce churn.",
-      "priority": "medium",
-      "implementation_cost": 450,
-      "ongoing_cost": 90,
-      "roi_calculation": "ROI = (retained premium revenue + reduced acquisition costs - retention system costs) / total investment × 100"
-    },
-    {
-      "title": "AI for Dynamic Premium Pricing",
-      "description": "Real-time pricing adjustments based on risk factors, market conditions, and customer behavior using machine learning algorithms.",
-      "priority": "medium",
-      "implementation_cost": 500,
-      "ongoing_cost": 100,
-      "roi_calculation": "ROI = (pricing optimization revenue + competitive advantage - dynamic pricing costs) / total investment × 100"
+      "roi_calculator": {
+        "formula": "(claims_processing_cost_reduction + document_processing_efficiency + fraud_prevention - implementation_cost - (ongoing_cost * years)) / (implementation_cost + (ongoing_cost * years)) * 100",
+        "variables": {
+          "claims_processing_cost_reduction": {
+            "label": "Claims Processing Cost Reduction",
+            "type": "currency",
+            "default": 1800,
+            "min": 0,
+            "max": 5000,
+            "step": 100,
+            "tooltip": "Annual savings from automated claims processing"
+          },
+          "document_processing_efficiency": {
+            "label": "Document Processing Efficiency",
+            "type": "currency",
+            "default": 600,
+            "min": 0,
+            "max": 2000,
+            "step": 50,
+            "tooltip": "Annual savings from OCR and automated document handling"
+          },
+          "fraud_prevention": {
+            "label": "Fraud Prevention Savings",
+            "type": "currency",
+            "default": 800,
+            "min": 0,
+            "max": 3000,
+            "step": 100,
+            "tooltip": "Annual savings from detecting fraudulent claims"
+          },
+          "years": {
+            "label": "Time Horizon (Years)",
+            "type": "number",
+            "default": 3,
+            "min": 1,
+            "max": 10,
+            "step": 1,
+            "tooltip": "Number of years for ROI calculation"
+          }
+        },
+        "display_format": "percentage",
+        "breakeven_months": "implementation_cost / ((claims_processing_cost_reduction + document_processing_efficiency + fraud_prevention - ongoing_cost) / 12)"
+      }
     }
   ]
 }

@@ -1,4 +1,5 @@
 from typing import Dict, Any
+import re
 from src.models import ROICalculatorInput, ROICalculatorResult, ROIMetrics, ProjectROIInput
 
 
@@ -238,3 +239,72 @@ Based on the analysis, this AI implementation shows strong financial returns wit
             "accuracy_improvement": f"{project_input.current_accuracy:.1f}% → {ai_efficiency * 100:.1f}%",
             "speed_improvement": f"{improvement_factor}x faster"
         }
+    
+    def calculate_catalog_roi(self, roi_config: Dict[str, Any], variable_values: Dict[str, float]) -> Dict[str, Any]:
+        """Calculate ROI using catalog-specified formula and variables"""
+        
+        # Prepare the variables for formula evaluation
+        variables = {}
+        
+        # Add user-provided variable values
+        for var_name, value in variable_values.items():
+            variables[var_name] = value
+        
+        # Add implementation and ongoing costs from the catalog
+        variables['implementation_cost'] = roi_config.get('implementation_cost', 0)
+        variables['ongoing_cost'] = roi_config.get('ongoing_cost', 0)
+        
+        # Evaluate the main ROI formula
+        formula = roi_config['formula']
+        try:
+            roi_percentage = self._safe_eval_formula(formula, variables)
+        except Exception as e:
+            raise ValueError(f"Error evaluating ROI formula: {e}")
+        
+        # Calculate breakeven months if formula provided
+        breakeven_months = 0
+        if 'breakeven_months' in roi_config:
+            try:
+                breakeven_months = self._safe_eval_formula(roi_config['breakeven_months'], variables)
+            except Exception as e:
+                print(f"Warning: Could not calculate breakeven months: {e}")
+        
+        # Calculate annual benefit
+        years = variables.get('years', 3)
+        total_benefits = sum(variables.get(var, 0) for var in variables.keys() 
+                           if var not in ['implementation_cost', 'ongoing_cost', 'years'])
+        annual_costs = variables['ongoing_cost']
+        annual_benefit = total_benefits - annual_costs
+        
+        # Calculate 3-year NPV
+        npv = -variables['implementation_cost']
+        for year in range(1, int(years) + 1):
+            npv += annual_benefit / ((1 + 0.10) ** year)
+        
+        return {
+            'roi_percentage': roi_percentage,
+            'breakeven_months': breakeven_months,
+            'annual_benefit': annual_benefit,
+            'three_year_npv': npv,
+            'variables_used': variables,
+            'formula': formula
+        }
+    
+    def _safe_eval_formula(self, formula: str, variables: Dict[str, float]) -> float:
+        """Safely evaluate a mathematical formula with given variables"""
+        
+        # Replace variable names in the formula with their values
+        safe_formula = formula
+        for var_name, value in variables.items():
+            safe_formula = safe_formula.replace(var_name, str(value))
+        
+        # Basic safety check - only allow mathematical operations
+        allowed_chars = set('0123456789+-*/()., ')
+        if not all(c in allowed_chars for c in safe_formula):
+            raise ValueError("Formula contains invalid characters")
+        
+        try:
+            result = eval(safe_formula)
+            return float(result)
+        except Exception as e:
+            raise ValueError(f"Could not evaluate formula: {safe_formula}. Error: {e}")

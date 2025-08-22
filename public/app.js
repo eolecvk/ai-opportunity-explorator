@@ -12,6 +12,131 @@ class AIDiscoveryApp {
         this.initEventListeners();
     }
     
+    formatCurrency(value) {
+        if (value >= 1000000) {
+            return `$${(value / 1000000).toFixed(1)}M USD`;
+        } else if (value >= 1000) {
+            return `$${(value / 1000).toFixed(0)}K USD`;
+        } else {
+            return `$${value.toLocaleString()}`;
+        }
+    }
+    
+    generateROIForm(project, index) {
+        // Check if project has custom ROI calculator
+        if (project.roi_calculator && project.roi_calculator.variables) {
+            return this.generateCatalogROIForm(project, index);
+        } else {
+            return this.generateDefaultROIForm(project, index);
+        }
+    }
+    
+    generateCatalogROIForm(project, index) {
+        const roiConfig = project.roi_calculator;
+        const variables = roiConfig.variables;
+        
+        let formHTML = `<form class="roi-form catalog-roi-form" data-project-index="${index}" data-project-title="${project.title}">`;
+        
+        // Generate input fields for each variable
+        const variableKeys = Object.keys(variables);
+        for (let i = 0; i < variableKeys.length; i += 2) {
+            formHTML += '<div class="roi-input-row">';
+            
+            // First variable in the row
+            const var1 = variableKeys[i];
+            const config1 = variables[var1];
+            formHTML += this.generateVariableInput(var1, config1);
+            
+            // Second variable in the row (if exists)
+            if (i + 1 < variableKeys.length) {
+                const var2 = variableKeys[i + 1];
+                const config2 = variables[var2];
+                formHTML += this.generateVariableInput(var2, config2);
+            }
+            
+            formHTML += '</div>';
+        }
+        
+        formHTML += `
+            <button type="submit" class="calculate-roi-btn">Calculate Project-Specific ROI</button>
+        </form>`;
+        
+        return formHTML;
+    }
+    
+    generateVariableInput(varName, config) {
+        const inputType = config.type === 'currency' ? 'number' : config.type;
+        const step = config.step || (config.type === 'currency' ? 100 : 1);
+        const prefix = config.type === 'currency' ? '$' : '';
+        const suffix = config.type === 'currency' ? 'K' : '';
+        
+        return `
+            <div class="roi-input-group">
+                <label title="${config.tooltip || ''}">${config.label}</label>
+                <div class="input-with-prefix">
+                    ${prefix ? `<span class="input-prefix">${prefix}</span>` : ''}
+                    <input 
+                        type="${inputType}" 
+                        name="${varName}" 
+                        placeholder="${config.default}" 
+                        value="${config.default}"
+                        min="${config.min || 0}" 
+                        max="${config.max || ''}" 
+                        step="${step}" 
+                        required>
+                    ${suffix ? `<span class="input-suffix">${suffix}</span>` : ''}
+                </div>
+                ${config.tooltip ? `<small class="tooltip-text">${config.tooltip}</small>` : ''}
+            </div>
+        `;
+    }
+    
+    generateDefaultROIForm(project, index) {
+        return `
+            <form class="roi-form" data-project-index="${index}" data-project-title="${project.title}">
+                <div class="roi-input-row">
+                    <div class="roi-input-group">
+                        <label>Current Monthly Process Cost ($)</label>
+                        <input type="number" name="current_process_cost" placeholder="25000" required step="1000">
+                    </div>
+                    <div class="roi-input-group">
+                        <label>Current Accuracy/Efficiency (%)</label>
+                        <input type="number" name="current_accuracy" placeholder="80" required min="0" max="100" step="0.1">
+                    </div>
+                </div>
+                <div class="roi-input-row">
+                    <div class="roi-input-group">
+                        <label>Current Processing Time (minutes)</label>
+                        <input type="number" name="current_processing_time" placeholder="30" required min="1" step="0.1">
+                    </div>
+                    <div class="roi-input-group">
+                        <label>Expected Improvement Factor</label>
+                        <select name="expected_improvement" required>
+                            <option value="">Select improvement</option>
+                            <option value="1.5">1.5x improvement</option>
+                            <option value="2">2x improvement</option>
+                            <option value="2.5">2.5x improvement</option>
+                            <option value="3">3x improvement</option>
+                            <option value="4">4x improvement</option>
+                            <option value="5">5x improvement</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="roi-input-row">
+                    <div class="roi-input-group">
+                        <label>Implementation Cost ($)</label>
+                        <input type="number" name="implementation_cost" placeholder="200000" required step="10000">
+                    </div>
+                    <div class="roi-input-group">
+                        <label>Annual Operating Cost ($)</label>
+                        <input type="number" name="annual_operating_cost" placeholder="50000" required step="1000">
+                    </div>
+                </div>
+                <button type="submit" class="calculate-roi-btn">Calculate ROI</button>
+            </form>
+        `;
+    }
+    
     initEventListeners() {
         this.discoveryForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
         this.newAnalysisButton.addEventListener('click', () => this.resetForm());
@@ -60,6 +185,7 @@ class AIDiscoveryApp {
         console.log('displayRecommendations called with:', data, companyInfo);
         this.recommendations.innerHTML = '';
         this.companyInfo = companyInfo; // Store for ROI calculations
+        this.currentProjects = data.projects; // Store projects for ROI calculations
         
         const header = document.createElement('div');
         header.className = 'company-header';
@@ -123,47 +249,7 @@ class AIDiscoveryApp {
                 </button>
                 <div class="roi-calculator hidden" id="roi-calc-${index}">
                     <h4>ROI Calculator for "${project.title}"</h4>
-                    <form class="roi-form" data-project-index="${index}" data-project-title="${project.title}">
-                        <div class="roi-input-row">
-                            <div class="roi-input-group">
-                                <label>Current Monthly Process Cost ($)</label>
-                                <input type="number" name="current_process_cost" placeholder="25000" required step="1000">
-                            </div>
-                            <div class="roi-input-group">
-                                <label>Current Accuracy/Efficiency (%)</label>
-                                <input type="number" name="current_accuracy" placeholder="80" required min="0" max="100" step="0.1">
-                            </div>
-                        </div>
-                        <div class="roi-input-row">
-                            <div class="roi-input-group">
-                                <label>Current Processing Time (minutes)</label>
-                                <input type="number" name="current_processing_time" placeholder="30" required min="1" step="0.1">
-                            </div>
-                            <div class="roi-input-group">
-                                <label>Expected Improvement Factor</label>
-                                <select name="expected_improvement" required>
-                                    <option value="">Select improvement</option>
-                                    <option value="1.5">1.5x improvement</option>
-                                    <option value="2">2x improvement</option>
-                                    <option value="2.5">2.5x improvement</option>
-                                    <option value="3">3x improvement</option>
-                                    <option value="4">4x improvement</option>
-                                    <option value="5">5x improvement</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="roi-input-row">
-                            <div class="roi-input-group">
-                                <label>Implementation Cost ($)</label>
-                                <input type="number" name="implementation_cost" placeholder="200000" required step="10000">
-                            </div>
-                            <div class="roi-input-group">
-                                <label>Annual Operating Cost ($)</label>
-                                <input type="number" name="annual_operating_cost" placeholder="50000" required step="1000">
-                            </div>
-                        </div>
-                        <button type="submit" class="calculate-roi-btn">Calculate ROI</button>
-                    </form>
+                    ${this.generateROIForm(project, index)}
                     <div class="roi-results hidden" id="roi-results-${index}"></div>
                 </div>
             </div>
@@ -178,6 +264,7 @@ class AIDiscoveryApp {
     
     getPriorityClass(priority) {
         switch(priority?.toLowerCase()) {
+            case 'critical': return 'priority-critical';
             case 'high': return 'priority-high';
             case 'medium': return 'priority-medium';
             case 'low': return 'priority-low';
@@ -214,35 +301,22 @@ class AIDiscoveryApp {
         const projectIndex = form.dataset.projectIndex;
         const projectTitle = form.dataset.projectTitle;
         
-        const roiInput = {
-            project_title: projectTitle,
-            current_process_cost: parseFloat(formData.get('current_process_cost')),
-            current_accuracy: parseFloat(formData.get('current_accuracy')),
-            current_processing_time: parseFloat(formData.get('current_processing_time')),
-            expected_improvement: parseFloat(formData.get('expected_improvement')),
-            implementation_cost: parseFloat(formData.get('implementation_cost')),
-            annual_operating_cost: parseFloat(formData.get('annual_operating_cost'))
-        };
-        
         const submitButton = form.querySelector('button[type="submit"]');
         const originalText = submitButton.textContent;
         submitButton.textContent = 'Calculating...';
         submitButton.disabled = true;
         
         try {
-            const response = await fetch(`/project-roi?industry=${encodeURIComponent(this.companyInfo.industry)}&company_size=${encodeURIComponent(this.companyInfo.companySize)}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(roiInput)
-            });
+            let roiResult;
             
-            if (!response.ok) {
-                throw new Error('Failed to calculate ROI');
+            if (form.classList.contains('catalog-roi-form')) {
+                // Handle catalog-based ROI calculation
+                roiResult = await this.handleCatalogROICalculation(form, formData, projectIndex);
+            } else {
+                // Handle default ROI calculation
+                roiResult = await this.handleDefaultROICalculation(form, formData, projectTitle);
             }
             
-            const roiResult = await response.json();
             this.displayROIResults(roiResult, projectIndex);
             
         } catch (error) {
@@ -261,9 +335,148 @@ class AIDiscoveryApp {
         }
     }
     
+    async handleCatalogROICalculation(form, formData, projectIndex) {
+        // Get the project data to access ROI calculator config
+        const projectCard = form.closest('.recommendation-card');
+        const projectTitle = form.dataset.projectTitle;
+        
+        // Find the project data from our stored recommendations
+        let projectData = null;
+        if (this.currentProjects) {
+            projectData = this.currentProjects.find(p => p.title === projectTitle);
+        }
+        
+        if (!projectData || !projectData.roi_calculator) {
+            throw new Error('Project ROI calculator configuration not found');
+        }
+        
+        // Collect variable values from form
+        const variableValues = {};
+        const roiConfig = projectData.roi_calculator;
+        
+        for (const varName of Object.keys(roiConfig.variables)) {
+            const value = parseFloat(formData.get(varName));
+            if (isNaN(value)) {
+                throw new Error(`Invalid value for ${varName}`);
+            }
+            
+            // Convert currency values from K to actual values
+            if (roiConfig.variables[varName].type === 'currency') {
+                variableValues[varName] = value * 1000;
+            } else {
+                variableValues[varName] = value;
+            }
+        }
+        
+        const response = await fetch('/catalog-roi', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                roi_config: roiConfig,
+                variable_values: variableValues
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to calculate catalog ROI');
+        }
+        
+        return await response.json();
+    }
+    
+    async handleDefaultROICalculation(form, formData, projectTitle) {
+        const roiInput = {
+            project_title: projectTitle,
+            current_process_cost: parseFloat(formData.get('current_process_cost')),
+            current_accuracy: parseFloat(formData.get('current_accuracy')),
+            current_processing_time: parseFloat(formData.get('current_processing_time')),
+            expected_improvement: parseFloat(formData.get('expected_improvement')),
+            implementation_cost: parseFloat(formData.get('implementation_cost')),
+            annual_operating_cost: parseFloat(formData.get('annual_operating_cost'))
+        };
+        
+        const response = await fetch(`/project-roi?industry=${encodeURIComponent(this.companyInfo.industry)}&company_size=${encodeURIComponent(this.companyInfo.companySize)}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(roiInput)
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to calculate ROI');
+        }
+        
+        return await response.json();
+    }
+    
     displayROIResults(result, projectIndex) {
         const resultsDiv = document.getElementById(`roi-results-${projectIndex}`);
         
+        if (result.variables_used) {
+            // This is a catalog-based ROI result
+            this.displayCatalogROIResults(result, resultsDiv);
+        } else {
+            // This is a default ROI result
+            this.displayDefaultROIResults(result, resultsDiv);
+        }
+        
+        resultsDiv.classList.remove('hidden');
+    }
+    
+    displayCatalogROIResults(result, resultsDiv) {
+        const roiColor = result.roi_percentage > 200 ? '#28a745' : result.roi_percentage > 100 ? '#ffc107' : '#dc3545';
+        
+        resultsDiv.innerHTML = `
+            <div class="roi-results-content">
+                <h5>📈 Project-Specific ROI Analysis</h5>
+                <div class="roi-metrics-grid">
+                    <div class="roi-metric">
+                        <div class="roi-metric-value" style="color: ${roiColor};">${result.roi_percentage.toFixed(1)}%</div>
+                        <div class="roi-metric-label">Total ROI</div>
+                    </div>
+                    <div class="roi-metric">
+                        <div class="roi-metric-value">${this.formatCurrency(result.annual_benefit)}</div>
+                        <div class="roi-metric-label">Annual Benefit</div>
+                    </div>
+                    <div class="roi-metric">
+                        <div class="roi-metric-value">${result.breakeven_months ? result.breakeven_months.toFixed(1) + ' months' : 'N/A'}</div>
+                        <div class="roi-metric-label">Breakeven Period</div>
+                    </div>
+                    <div class="roi-metric">
+                        <div class="roi-metric-value">${this.formatCurrency(result.three_year_npv)}</div>
+                        <div class="roi-metric-label">3-Year NPV</div>
+                    </div>
+                </div>
+                
+                <div class="variables-used">
+                    <h6>📊 Variables Used in Calculation</h6>
+                    <div class="variables-grid">
+                        ${Object.entries(result.variables_used)
+                            .filter(([key, value]) => key !== 'implementation_cost' && key !== 'ongoing_cost')
+                            .map(([key, value]) => `
+                                <div class="variable-item">
+                                    <span class="variable-name">${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}:</span>
+                                    <span class="variable-value">${typeof value === 'number' && value >= 1000 ? this.formatCurrency(value) : value}</span>
+                                </div>
+                            `).join('')}
+                    </div>
+                </div>
+                
+                <div class="business-case-summary">
+                    <h6>💼 Executive Summary</h6>
+                    <p>This project delivers <strong>${result.roi_percentage.toFixed(0)}% ROI</strong> 
+                    ${result.breakeven_months ? `with a breakeven period of <strong>${result.breakeven_months.toFixed(1)} months</strong>` : ''}. 
+                    The implementation generates <strong>${this.formatCurrency(result.annual_benefit)}</strong> in annual benefits 
+                    with a 3-year NPV of <strong>${this.formatCurrency(result.three_year_npv)}</strong>.</p>
+                </div>
+            </div>
+        `;
+    }
+    
+    displayDefaultROIResults(result, resultsDiv) {
         const roiColor = result.roi_percentage > 200 ? '#28a745' : result.roi_percentage > 100 ? '#ffc107' : '#dc3545';
         
         resultsDiv.innerHTML = `
@@ -275,7 +488,7 @@ class AIDiscoveryApp {
                         <div class="roi-metric-label">Total ROI</div>
                     </div>
                     <div class="roi-metric">
-                        <div class="roi-metric-value">$${result.annual_savings.toLocaleString()}</div>
+                        <div class="roi-metric-value">${this.formatCurrency(result.annual_savings)}</div>
                         <div class="roi-metric-label">Annual Savings</div>
                     </div>
                     <div class="roi-metric">
@@ -283,7 +496,7 @@ class AIDiscoveryApp {
                         <div class="roi-metric-label">Payback Period</div>
                     </div>
                     <div class="roi-metric">
-                        <div class="roi-metric-value">$${result.three_year_npv.toLocaleString()}</div>
+                        <div class="roi-metric-value">${this.formatCurrency(result.three_year_npv)}</div>
                         <div class="roi-metric-label">3-Year NPV</div>
                     </div>
                 </div>
@@ -292,9 +505,9 @@ class AIDiscoveryApp {
                     <h6>Without AI vs With AI</h6>
                     <div class="comparison-row">
                         <span>Annual Cost:</span>
-                        <span class="current-cost">$${result.current_annual_cost.toLocaleString()}</span>
+                        <span class="current-cost">${this.formatCurrency(result.current_annual_cost)}</span>
                         <span>→</span>
-                        <span class="ai-cost">$${result.ai_annual_cost.toLocaleString()}</span>
+                        <span class="ai-cost">${this.formatCurrency(result.ai_annual_cost)}</span>
                     </div>
                     <div class="comparison-row">
                         <span>Performance:</span>
@@ -308,14 +521,12 @@ class AIDiscoveryApp {
                     <h6>💼 Executive Summary</h6>
                     <p>This ${result.project_title} project delivers <strong>${result.roi_percentage.toFixed(0)}% ROI</strong> 
                     with a payback period of <strong>${result.payback_months.toFixed(1)} months</strong>. 
-                    The initiative will save <strong>$${result.annual_savings.toLocaleString()}</strong> annually while 
+                    The initiative will save <strong>${this.formatCurrency(result.annual_savings)}</strong> annually while 
                     improving ${result.accuracy_improvement.split(' → ')[0]} accuracy to ${result.accuracy_improvement.split(' → ')[1]} 
                     and achieving ${result.speed_improvement} processing speed.</p>
                 </div>
             </div>
         `;
-        
-        resultsDiv.classList.remove('hidden');
     }
 
     showError(message) {

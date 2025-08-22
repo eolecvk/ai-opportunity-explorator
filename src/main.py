@@ -88,6 +88,21 @@ async def calculate_project_roi(input_data: ProjectROIInput, industry: str = "de
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Project ROI calculation failed: {str(e)}")
 
+@app.post("/catalog-roi")
+async def calculate_catalog_roi(request_data: dict):
+    """Calculate ROI using catalog-specified formula and variables"""
+    try:
+        roi_config = request_data.get('roi_config')
+        variable_values = request_data.get('variable_values')
+        
+        if not roi_config or not variable_values:
+            raise HTTPException(status_code=400, detail="Missing roi_config or variable_values")
+        
+        result = roi_calculator.calculate_catalog_roi(roi_config, variable_values)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Catalog ROI calculation failed: {str(e)}")
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
