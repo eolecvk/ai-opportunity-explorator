@@ -1,1 +1,1 @@
-# ai-sales-assistant
+# AI Opportunity Explorator
