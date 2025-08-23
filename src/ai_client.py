@@ -1,8 +1,11 @@
 import google.genai as genai
 import json
 import os
+import asyncio
+import random
 from typing import Dict, List, Any
 from .catalog_manager import CatalogManager
+from .web_validator import get_web_validator
 
 class GeminiAIClient:
     def __init__(self):
@@ -13,6 +16,9 @@ class GeminiAIClient:
             self.client = None
         self.model = 'gemini-1.5-flash'
         self.catalog_manager = CatalogManager()
+        # Retry configuration
+        self.max_retries = 5
+        self.base_delay = 2  # seconds
     
     async def generate_response(self, user_message: str, context: Dict = None) -> str:
         if not self.client:
@@ -23,9 +29,11 @@ class GeminiAIClient:
             
             full_prompt = f"{system_prompt}\n\nUser: {user_message}\n\nAssistant:"
             
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=full_prompt
+            response = await self._retry_api_call(
+                lambda: self.client.models.generate_content(
+                    model=self.model,
+                    contents=full_prompt
+                )
             )
             
             if not response or not response.text:
@@ -72,6 +80,45 @@ Your expertise includes:
 Current conversation context: {json.dumps(context)}
 
 Always lead with business impact and proven results. Ask strategic questions to uncover AI opportunities the client may not have considered."""
+    
+    async def _retry_api_call(self, api_call_func, operation_name="API operation"):
+        """Retry API calls with exponential backoff for rate limits and transient errors"""
+        last_exception = None
+        
+        for attempt in range(self.max_retries):
+            try:
+                return api_call_func()
+            except Exception as e:
+                last_exception = e
+                error_str = str(e).lower()
+                
+                # Check if it's a retryable error
+                is_retryable = any(code in error_str for code in [
+                    '429',  # Rate limit
+                    'resource_exhausted',
+                    'quota',
+                    'rate limit',
+                    'too many requests',
+                    '500',  # Server error
+                    '502',  # Bad gateway
+                    '503',  # Service unavailable
+                    '504',  # Gateway timeout
+                    'timeout',
+                    'connection error',
+                    'service unavailable'
+                ])
+                
+                if not is_retryable or attempt == self.max_retries - 1:
+                    print(f"{operation_name} failed: {e}")
+                    raise e
+                
+                # Calculate delay with exponential backoff + jitter
+                delay = self.base_delay * (2 ** attempt) + random.uniform(0, 1)
+                print(f"{operation_name} failed (attempt {attempt + 1}/{self.max_retries}): {e}. Retrying in {delay:.1f} seconds...")
+                await asyncio.sleep(delay)
+        
+        # This should never be reached due to the raise in the loop, but just in case
+        raise last_exception
 
     async def qualify_lead(self, conversation: List[Dict]) -> Dict[str, Any]:
         qualification_prompt = f"""Analyze this conversation for AI project sales qualification. Score the lead from 1-10 based on:
@@ -107,9 +154,12 @@ Respond in JSON format:
             if not self.client:
                 raise Exception("API client not configured")
                 
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=qualification_prompt
+            response = await self._retry_api_call(
+                lambda: self.client.models.generate_content(
+                    model=self.model,
+                    contents=qualification_prompt
+                ),
+                "Lead qualification"
             )
             return json.loads(response.text)
         except Exception as e:
@@ -124,7 +174,65 @@ Respond in JSON format:
             }
 
     async def validate_company_name(self, company_name: str) -> Dict[str, Any]:
-        """Validate if the input is a real company and handle ambiguous cases"""
+        """Validate if the input is a real company using web validation first, then LLM fallback"""
+        
+        # Input validation
+        if not company_name or len(company_name.strip()) < 2:
+            return {
+                "status": "invalid",
+                "message": "Please enter a valid company name (at least 2 characters)",
+                "suggestions": [],
+                "company_name": None,
+                "confidence": 0,
+                "sources": []
+            }
+        
+        try:
+            # Primary: Web validation
+            web_validator = await get_web_validator()
+            web_result = await web_validator.validate_company(company_name.strip())
+            
+            # Convert web validation result to expected format
+            result = {
+                "status": web_result.status,
+                "message": web_result.message,
+                "suggestions": web_result.suggestions,
+                "company_name": web_result.company_name if web_result.status == 'valid' else None,
+                "confidence": web_result.confidence,
+                "sources": web_result.sources,
+                "validation_details": web_result.details
+            }
+            
+            # If web validation is confident enough, return it
+            if web_result.confidence >= 50:
+                return result
+            
+            # Fallback: LLM validation for ambiguous cases
+            print(f"Web validation low confidence ({web_result.confidence}%), trying LLM fallback...")
+            llm_result = await self._llm_validate_company(company_name.strip())
+            
+            # Merge results - prioritize web validation but supplement with LLM insights
+            if llm_result.get("status") == "valid" and web_result.confidence >= 20:
+                # LLM confirms web findings
+                result["status"] = "valid"
+                result["message"] = f"Validated via web search ({', '.join(web_result.sources)}) and AI analysis"
+                result["confidence"] = min(web_result.confidence + 20, 100)
+                result["company_name"] = llm_result.get("company_name") or company_name.strip()
+            elif llm_result.get("status") == "ambiguous":
+                # Use LLM suggestions for ambiguous cases
+                result["suggestions"] = llm_result.get("suggestions", [])
+                result["message"] = f"Multiple companies found. {llm_result.get('message', '')}"
+                result["status"] = "ambiguous"
+            
+            return result
+            
+        except Exception as e:
+            print(f"Company validation error: {e}")
+            # Final fallback to demo validation
+            return self._get_demo_company_validation(company_name)
+    
+    async def _llm_validate_company(self, company_name: str) -> Dict[str, Any]:
+        """LLM-based company validation (fallback method)"""
         
         prompt = f"""You are a business analyst tasked with validating company names. Analyze the input "{company_name}" and determine:
 
@@ -156,16 +264,19 @@ Examples:
             if not self.client:
                 return self._get_demo_company_validation(company_name)
                 
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt
+            response = await self._retry_api_call(
+                lambda: self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt
+                ),
+                "LLM Company validation"
             )
             
             result = json.loads(response.text)
             return result
             
         except Exception as e:
-            print(f"Company validation error: {e}")
+            print(f"LLM company validation error: {e}")
             return self._get_demo_company_validation(company_name)
     
     def _get_demo_company_validation(self, company_name: str) -> Dict[str, Any]:
@@ -283,9 +394,12 @@ If you're not familiar with the company, make reasonable inferences based on the
             if not self.client:
                 return self._get_demo_company_details(company_name)
                 
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt
+            response = await self._retry_api_call(
+                lambda: self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt
+                ),
+                "Company details inference"
             )
             
             result = json.loads(response.text)
@@ -376,9 +490,12 @@ Format the response as JSON with the following structure:
             if not self.client:
                 return self._get_demo_pre_engagement_analysis(company_info)
                 
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt
+            response = await self._retry_api_call(
+                lambda: self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt
+                ),
+                "Pre-engagement analysis"
             )
             
             result = json.loads(response.text)
@@ -522,9 +639,12 @@ BE SPECIFIC TO THE ACTUAL HYPOTHESES PROVIDED."""
                 # Fallback to demo recommendations with hypothesis context
                 return self._get_hypothesis_demo_recommendations(company_info, selected_hypotheses)
                 
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt
+            response = await self._retry_api_call(
+                lambda: self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt
+                ),
+                "Hypothesis-based recommendations"
             )
             
             result = json.loads(response.text)

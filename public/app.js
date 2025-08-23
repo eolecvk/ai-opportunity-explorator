@@ -94,6 +94,7 @@ class AIDiscoveryApp {
         
         this.showResults();
         this.setLoading(true);
+        this.updateRecommendationLoadingMessage('Generating AI project recommendations based on validated hypotheses...');
         
         try {
             const response = await fetch('/ai-recommendations', {
@@ -108,7 +109,10 @@ class AIDiscoveryApp {
             });
             
             if (!response.ok) {
-                throw new Error('Failed to get AI recommendations');
+                if (response.status === 429) {
+                    this.updateRecommendationLoadingMessage('API quota exceeded. Implementing exponential backoff retry. This may take up to 10 minutes...');
+                }
+                throw new Error(`Failed to get AI recommendations (${response.status})`);
             }
             
             const data = await response.json();
@@ -117,7 +121,10 @@ class AIDiscoveryApp {
             
         } catch (error) {
             console.error('Error:', error);
-            this.showError('Failed to generate AI project recommendations. Please try again.');
+            const errorMessage = error.message.includes('429')
+                ? 'API quota exceeded. The system has attempted multiple retries with exponential backoff. Please try again in a few hours when the quota resets.'
+                : 'Failed to generate AI project recommendations. Please try again.';
+            this.showError(errorMessage);
         } finally {
             this.setLoading(false);
         }
@@ -281,6 +288,7 @@ class AIDiscoveryApp {
         
         this.showValidationStep();
         this.setValidationLoading(true);
+        this.updateValidationLoadingMessage('Validating company name...');
         
         try {
             // First, validate the company name
@@ -293,7 +301,11 @@ class AIDiscoveryApp {
             });
             
             if (!validationResponse.ok) {
-                throw new Error('Failed to validate company name');
+                if (validationResponse.status === 429) {
+                    this.updateValidationLoadingMessage('API rate limit reached. Retrying with backoff strategy...');
+                    // Let it retry automatically via backend
+                }
+                throw new Error(`Failed to validate company name (${validationResponse.status})`);
             }
             
             this.validationResult = await validationResponse.json();
@@ -302,7 +314,10 @@ class AIDiscoveryApp {
             
         } catch (error) {
             console.error('Error:', error);
-            this.showValidationError('Failed to validate company name. Please try again.');
+            const errorMessage = error.message.includes('429') 
+                ? 'API quota exceeded. The system is automatically retrying. This may take a few minutes...'
+                : 'Failed to validate company name. Please try again.';
+            this.showValidationError(errorMessage);
         } finally {
             this.setValidationLoading(false);
         }
@@ -313,6 +328,7 @@ class AIDiscoveryApp {
         
         this.showResearchStep();
         this.setResearchLoading(true);
+        this.updateResearchLoadingMessage('Analyzing company details...');
         
         try {
             // Infer company details from the validated name
@@ -325,7 +341,10 @@ class AIDiscoveryApp {
             });
             
             if (!detailsResponse.ok) {
-                throw new Error('Failed to analyze company details');
+                if (detailsResponse.status === 429) {
+                    this.updateResearchLoadingMessage('API rate limit reached. Applying exponential backoff retry strategy...');
+                }
+                throw new Error(`Failed to analyze company details (${detailsResponse.status})`);
             }
             
             const companyDetails = await detailsResponse.json();
@@ -340,6 +359,8 @@ class AIDiscoveryApp {
             };
             
             // Now do the pre-engagement analysis
+            this.updateResearchLoadingMessage('Conducting pre-engagement research and hypothesis generation...');
+            
             const analysisResponse = await fetch('/pre-engagement-analysis', {
                 method: 'POST',
                 headers: {
@@ -349,7 +370,10 @@ class AIDiscoveryApp {
             });
             
             if (!analysisResponse.ok) {
-                throw new Error('Failed to get pre-engagement analysis');
+                if (analysisResponse.status === 429) {
+                    this.updateResearchLoadingMessage('API quota reached. Retrying with intelligent backoff. Please wait as this may take several minutes...');
+                }
+                throw new Error(`Failed to get pre-engagement analysis (${analysisResponse.status})`);
             }
             
             this.researchData = await analysisResponse.json();
@@ -358,7 +382,10 @@ class AIDiscoveryApp {
             
         } catch (error) {
             console.error('Error:', error);
-            this.showResearchError('Failed to analyze company. Please check the company name and try again.');
+            const errorMessage = error.message.includes('429')
+                ? 'API quota exceeded. The system is automatically retrying with exponential backoff. This process may take several minutes due to rate limits.'
+                : 'Failed to analyze company. Please check the company name and try again.';
+            this.showResearchError(errorMessage);
         } finally {
             this.setResearchLoading(false);
         }
@@ -542,13 +569,63 @@ class AIDiscoveryApp {
         }
     }
     
+    updateValidationLoadingMessage(message) {
+        const loadingText = this.validationLoadingIndicator.querySelector('p');
+        if (loadingText) {
+            loadingText.textContent = message;
+        }
+    }
+    
+    updateResearchLoadingMessage(message) {
+        const loadingText = this.researchLoadingIndicator.querySelector('p');
+        if (loadingText) {
+            loadingText.textContent = message;
+        }
+    }
+    
+    updateRecommendationLoadingMessage(message) {
+        const loadingText = this.loadingIndicator.querySelector('p');
+        if (loadingText) {
+            loadingText.textContent = message;
+        }
+    }
+    
     displayValidationResult(result) {
         const messageClass = result.status === 'valid' ? 'success' : 
                             result.status === 'ambiguous' ? 'warning' : 'error';
         
+        // Build confidence and sources display
+        let confidenceDisplay = '';
+        let sourcesDisplay = '';
+        
+        if (result.confidence !== undefined) {
+            const confidenceLevel = result.confidence >= 80 ? 'High' : 
+                                  result.confidence >= 50 ? 'Medium' : 'Low';
+            const confidenceColor = result.confidence >= 80 ? '#28a745' : 
+                                   result.confidence >= 50 ? '#ffc107' : '#dc3545';
+            
+            confidenceDisplay = `
+                <div class="confidence-indicator" style="margin-top: 10px;">
+                    <span style="color: ${confidenceColor}; font-weight: bold;">
+                        ${confidenceLevel} Confidence (${result.confidence}%)
+                    </span>
+                </div>
+            `;
+        }
+        
+        if (result.sources && result.sources.length > 0) {
+            sourcesDisplay = `
+                <div class="validation-sources" style="margin-top: 8px; font-size: 0.9em; color: #666;">
+                    <strong>Verified via:</strong> ${result.sources.join(', ')}
+                </div>
+            `;
+        }
+        
         this.validationMessage.innerHTML = `
             <div class="validation-status ${messageClass}">
                 <h3>${result.status === 'valid' ? '✓' : result.status === 'ambiguous' ? '⚠️' : '❌'} ${result.message}</h3>
+                ${confidenceDisplay}
+                ${sourcesDisplay}
             </div>
         `;
         
