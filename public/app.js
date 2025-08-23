@@ -3,13 +3,134 @@ class AIDiscoveryApp {
         this.discoveryForm = document.getElementById('discoveryForm');
         this.discoverButton = document.getElementById('discoverButton');
         this.companyForm = document.getElementById('companyForm');
+        
+        // Validation phase elements
+        this.validationContainer = document.getElementById('validationContainer');
+        this.validationLoadingIndicator = document.getElementById('validationLoadingIndicator');
+        this.validationContent = document.getElementById('validationContent');
+        this.validationMessage = document.getElementById('validationMessage');
+        this.suggestionsSection = document.getElementById('suggestionsSection');
+        this.suggestionsList = document.getElementById('suggestionsList');
+        this.proceedButton = document.getElementById('proceedButton');
+        this.backToInputButton = document.getElementById('backToInputButton');
+        
+        // Research phase elements
+        this.researchContainer = document.getElementById('researchContainer');
+        this.researchLoadingIndicator = document.getElementById('researchLoadingIndicator');
+        this.researchContent = document.getElementById('researchContent');
+        this.researchFindingsList = document.getElementById('researchFindingsList');
+        this.hypothesesList = document.getElementById('hypothesesList');
+        this.validateHypothesesButton = document.getElementById('validateHypothesesButton');
+        this.backToFormButton = document.getElementById('backToFormButton');
+        
+        // Results phase elements
         this.resultsContainer = document.getElementById('resultsContainer');
         this.loadingIndicator = document.getElementById('loadingIndicator');
         this.resultsContent = document.getElementById('resultsContent');
         this.recommendations = document.getElementById('recommendations');
+        this.selectedHypothesesDisplay = document.getElementById('selectedHypothesesDisplay');
+        this.selectedHypothesesList = document.getElementById('selectedHypothesesList');
         this.newAnalysisButton = document.getElementById('newAnalysisButton');
+        this.backToHypothesesButton = document.getElementById('backToHypothesesButton');
+        
+        // Application state
+        this.companyInfo = null;
+        this.validationResult = null;
+        this.researchData = null;
+        this.selectedHypotheses = [];
         
         this.initEventListeners();
+    }
+    
+    displayResearchFindings(data) {
+        // Display research findings
+        this.researchFindingsList.innerHTML = '';
+        data.research_findings.forEach(finding => {
+            const li = document.createElement('li');
+            li.textContent = finding;
+            this.researchFindingsList.appendChild(li);
+        });
+        
+        // Display hypotheses as selectable options
+        this.hypothesesList.innerHTML = '';
+        data.strategic_hypotheses.forEach((hypothesis, index) => {
+            const hypothesisCard = document.createElement('div');
+            hypothesisCard.className = 'hypothesis-card';
+            
+            hypothesisCard.innerHTML = `
+                <label class="hypothesis-checkbox">
+                    <input type="checkbox" value="${hypothesis.hypothesis}" data-index="${index}">
+                    <div class="hypothesis-content">
+                        <h4>${hypothesis.hypothesis}</h4>
+                        <p class="rationale"><strong>Rationale:</strong> ${hypothesis.rationale}</p>
+                        <p class="ai-opportunity"><strong>AI Opportunity:</strong> ${hypothesis.ai_opportunity}</p>
+                    </div>
+                </label>
+            `;
+            
+            this.hypothesesList.appendChild(hypothesisCard);
+        });
+        
+        // Add event listeners for checkboxes
+        const checkboxes = this.hypothesesList.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => this.updateSelectedHypotheses());
+        });
+    }
+    
+    updateSelectedHypotheses() {
+        const checkboxes = this.hypothesesList.querySelectorAll('input[type="checkbox"]:checked');
+        this.selectedHypotheses = Array.from(checkboxes).map(cb => cb.value);
+        
+        // Enable/disable the validate button based on selection
+        this.validateHypothesesButton.disabled = this.selectedHypotheses.length === 0;
+    }
+    
+    async handleHypothesesValidation() {
+        if (this.selectedHypotheses.length === 0) {
+            alert('Please select at least one hypothesis to continue.');
+            return;
+        }
+        
+        this.showResults();
+        this.setLoading(true);
+        
+        try {
+            const response = await fetch('/ai-recommendations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    company_info: this.companyInfo,
+                    selected_hypotheses: this.selectedHypotheses
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Failed to get AI recommendations');
+            }
+            
+            const data = await response.json();
+            console.log('Recommendations data:', data);
+            this.displayRecommendations(data, this.companyInfo);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            this.showError('Failed to generate AI project recommendations. Please try again.');
+        } finally {
+            this.setLoading(false);
+        }
+    }
+    
+    showResearchError(message) {
+        this.researchContent.innerHTML = `
+            <div class="error-message" style="color: #dc3545; text-align: center; padding: 20px;">
+                <h3>Error</h3>
+                <p>${message}</p>
+                <button onclick="location.reload()" class="secondary-button">Try Again</button>
+            </div>
+        `;
     }
     
     formatCurrency(value) {
@@ -139,45 +260,107 @@ class AIDiscoveryApp {
     
     initEventListeners() {
         this.discoveryForm.addEventListener('submit', (e) => this.handleFormSubmit(e));
+        this.proceedButton.addEventListener('click', () => this.proceedToAnalysis());
+        this.backToInputButton.addEventListener('click', () => this.showCompanyForm());
+        this.validateHypothesesButton.addEventListener('click', () => this.handleHypothesesValidation());
+        this.backToFormButton.addEventListener('click', () => this.showCompanyForm());
         this.newAnalysisButton.addEventListener('click', () => this.resetForm());
+        this.backToHypothesesButton.addEventListener('click', () => this.showResearchStep());
     }
     
     async handleFormSubmit(e) {
         e.preventDefault();
         
         const formData = new FormData(this.discoveryForm);
-        const companyInfo = {
-            companyName: formData.get('companyName'),
-            industry: formData.get('industry'),
-            companySize: formData.get('companySize'),
-            interlocutorRole: formData.get('interlocutorRole')
-        };
+        const companyName = formData.get('companyName');
         
-        this.showResults();
-        this.setLoading(true);
+        if (!companyName || !companyName.trim()) {
+            alert('Please enter a company name.');
+            return;
+        }
+        
+        this.showValidationStep();
+        this.setValidationLoading(true);
         
         try {
-            const response = await fetch('/ai-recommendations', {
+            // First, validate the company name
+            const validationResponse = await fetch('/validate-company', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(companyInfo)
+                body: JSON.stringify({ company_name: companyName })
             });
             
-            if (!response.ok) {
-                throw new Error('Failed to get AI recommendations');
+            if (!validationResponse.ok) {
+                throw new Error('Failed to validate company name');
             }
             
-            const data = await response.json();
-            console.log('Received data:', data);
-            this.displayRecommendations(data, companyInfo);
+            this.validationResult = await validationResponse.json();
+            console.log('Validation result:', this.validationResult);
+            this.displayValidationResult(this.validationResult);
             
         } catch (error) {
             console.error('Error:', error);
-            this.showError('Failed to generate AI project recommendations. Please try again.');
+            this.showValidationError('Failed to validate company name. Please try again.');
         } finally {
-            this.setLoading(false);
+            this.setValidationLoading(false);
+        }
+    }
+
+    async proceedToAnalysis() {
+        const companyName = this.validationResult.company_name || this.validationResult.original_name;
+        
+        this.showResearchStep();
+        this.setResearchLoading(true);
+        
+        try {
+            // Infer company details from the validated name
+            const detailsResponse = await fetch('/infer-company-details', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ company_name: companyName })
+            });
+            
+            if (!detailsResponse.ok) {
+                throw new Error('Failed to analyze company details');
+            }
+            
+            const companyDetails = await detailsResponse.json();
+            
+            // Build complete company info with inferred details
+            this.companyInfo = {
+                companyName: companyName,
+                industry: companyDetails.industry,
+                companySize: companyDetails.company_size,
+                description: companyDetails.description,
+                confidence: companyDetails.confidence
+            };
+            
+            // Now do the pre-engagement analysis
+            const analysisResponse = await fetch('/pre-engagement-analysis', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(this.companyInfo)
+            });
+            
+            if (!analysisResponse.ok) {
+                throw new Error('Failed to get pre-engagement analysis');
+            }
+            
+            this.researchData = await analysisResponse.json();
+            console.log('Research data:', this.researchData);
+            this.displayResearchFindings(this.researchData);
+            
+        } catch (error) {
+            console.error('Error:', error);
+            this.showResearchError('Failed to analyze company. Please check the company name and try again.');
+        } finally {
+            this.setResearchLoading(false);
         }
     }
     
@@ -185,35 +368,73 @@ class AIDiscoveryApp {
         console.log('displayRecommendations called with:', data, companyInfo);
         this.recommendations.innerHTML = '';
         this.companyInfo = companyInfo; // Store for ROI calculations
-        this.currentProjects = data.projects; // Store projects for ROI calculations
+        
+        // Combine aligned and filler projects for ROI calculations
+        this.currentProjects = [...(data.aligned_projects || []), ...(data.filler_projects || [])];
         
         const header = document.createElement('div');
         header.className = 'company-header';
         header.innerHTML = `
-            <h3>AI Opportunities for ${companyInfo.companyName}</h3>
-            <p><strong>Industry:</strong> ${companyInfo.industry} | <strong>Role:</strong> ${companyInfo.interlocutorRole} | <strong>Size:</strong> ${companyInfo.companySize}</p>
+            <h2>${companyInfo.companyName}</h2>
+            <p><strong>Industry:</strong> ${companyInfo.industry}</p>
+            ${companyInfo.description ? `<p class="company-description">${companyInfo.description}</p>` : ''}
         `;
         this.recommendations.appendChild(header);
         
-        if (data.projects && data.projects.length > 0) {
-            data.projects.forEach((project, index) => {
-                const card = this.createRecommendationCard(project, index);
+        // Display selected hypotheses if any
+        if (this.selectedHypotheses.length > 0) {
+            this.selectedHypothesesDisplay.style.display = 'block';
+            this.selectedHypothesesList.innerHTML = '';
+            this.selectedHypotheses.forEach(hypothesis => {
+                const li = document.createElement('li');
+                li.textContent = hypothesis;
+                this.selectedHypothesesList.appendChild(li);
+            });
+        } else {
+            this.selectedHypothesesDisplay.style.display = 'none';
+        }
+        
+        // Display aligned projects first (with hypothesis alignment)
+        if (data.aligned_projects && data.aligned_projects.length > 0) {
+            const alignedHeader = document.createElement('div');
+            alignedHeader.className = 'section-header';
+            alignedHeader.innerHTML = `<h3>🎯 Recommended Projects</h3>`;
+            this.recommendations.appendChild(alignedHeader);
+            
+            data.aligned_projects.forEach((project, index) => {
+                const card = this.createRecommendationCard(project, index, true);
                 this.recommendations.appendChild(card);
             });
         }
         
-        if (data.strategic_insights) {
-            const insights = document.createElement('div');
-            insights.className = 'strategic-insights';
-            insights.innerHTML = `
-                <h3>Strategic Insights for ${companyInfo.interlocutorRole}</h3>
-                <p>${data.strategic_insights}</p>
+        // Display filler projects behind "Explore additional opportunities" button
+        if (data.filler_projects && data.filler_projects.length > 0) {
+            const fillerSection = document.createElement('div');
+            fillerSection.className = 'filler-projects-section';
+            fillerSection.innerHTML = `
+                <div class="explore-more-button-container">
+                    <button class="explore-more-button" onclick="this.parentElement.nextElementSibling.classList.toggle('hidden'); this.textContent = this.textContent.includes('Show') ? '🔼 Hide Additional Projects' : '🔽 Show Additional Projects';">
+                        🔽 Show Additional Projects (${data.filler_projects.length})
+                    </button>
+                </div>
+                <div class="additional-opportunities hidden">
+                    <h4>Additional Projects</h4>
+                    <p style="color: #666; font-size: 0.9em; margin-bottom: 20px;">These projects may provide additional value to your organization.</p>
+                </div>
             `;
-            this.recommendations.appendChild(insights);
+            this.recommendations.appendChild(fillerSection);
+            
+            const additionalContainer = fillerSection.querySelector('.additional-opportunities');
+            data.filler_projects.forEach((project, index) => {
+                const adjustedIndex = (data.aligned_projects?.length || 0) + index;
+                const card = this.createRecommendationCard(project, adjustedIndex, false);
+                additionalContainer.appendChild(card);
+            });
         }
+        
     }
     
-    createRecommendationCard(project, index) {
+    createRecommendationCard(project, index, isAligned = true) {
         const card = document.createElement('div');
         card.className = 'recommendation-card';
         
@@ -224,14 +445,6 @@ class AIDiscoveryApp {
             <p>${project.description}</p>
             <div class="recommendation-meta">
                 <div class="meta-item">
-                    <span>Priority:</span>
-                    <span class="${priorityClass}">${project.priority}</span>
-                </div>
-                <div class="meta-item">
-                    <span>ROI:</span>
-                    <span class="roi-value">${project.expected_roi}</span>
-                </div>
-                <div class="meta-item">
                     <span>Timeline:</span>
                     <span class="timeline">${project.timeline}</span>
                 </div>
@@ -240,8 +453,7 @@ class AIDiscoveryApp {
                     <span class="investment">${project.investment_range}</span>
                 </div>
             </div>
-            ${project.business_value ? `<div class="business-value-section"><strong>🎯 Business Value:</strong> <span>${project.business_value}</span></div>` : ''}
-            ${project.implementation_notes ? `<div class="implementation-section"><strong>⚙️ Implementation:</strong> <span>${project.implementation_notes}</span></div>` : ''}
+            ${isAligned && project.hypothesis_alignment ? `<div class="hypothesis-alignment-section"><strong>🔬 Hypothesis Alignment:</strong> <span>${project.hypothesis_alignment}</span></div>` : ''}
             
             <div class="roi-calculator-section">
                 <button class="roi-toggle-btn" onclick="this.parentElement.parentElement.querySelector('.roi-calculator').classList.toggle('hidden')">
@@ -272,9 +484,32 @@ class AIDiscoveryApp {
         }
     }
     
+    showValidationStep() {
+        this.companyForm.style.display = 'none';
+        this.validationContainer.style.display = 'block';
+        this.researchContainer.style.display = 'none';
+        this.resultsContainer.style.display = 'none';
+    }
+    
+    showResearchStep() {
+        this.companyForm.style.display = 'none';
+        this.validationContainer.style.display = 'none';
+        this.resultsContainer.style.display = 'none';
+        this.researchContainer.style.display = 'block';
+    }
+    
     showResults() {
         this.companyForm.style.display = 'none';
+        this.validationContainer.style.display = 'none';
+        this.researchContainer.style.display = 'none';
         this.resultsContainer.style.display = 'block';
+    }
+    
+    showCompanyForm() {
+        this.companyForm.style.display = 'block';
+        this.validationContainer.style.display = 'none';
+        this.researchContainer.style.display = 'none';
+        this.resultsContainer.style.display = 'none';
     }
     
     setLoading(loading) {
@@ -287,10 +522,86 @@ class AIDiscoveryApp {
         }
     }
     
+    setValidationLoading(loading) {
+        if (loading) {
+            this.validationLoadingIndicator.style.display = 'block';
+            this.validationContent.style.display = 'none';
+        } else {
+            this.validationLoadingIndicator.style.display = 'none';
+            this.validationContent.style.display = 'block';
+        }
+    }
+    
+    setResearchLoading(loading) {
+        if (loading) {
+            this.researchLoadingIndicator.style.display = 'block';
+            this.researchContent.style.display = 'none';
+        } else {
+            this.researchLoadingIndicator.style.display = 'none';
+            this.researchContent.style.display = 'block';
+        }
+    }
+    
+    displayValidationResult(result) {
+        const messageClass = result.status === 'valid' ? 'success' : 
+                            result.status === 'ambiguous' ? 'warning' : 'error';
+        
+        this.validationMessage.innerHTML = `
+            <div class="validation-status ${messageClass}">
+                <h3>${result.status === 'valid' ? '✓' : result.status === 'ambiguous' ? '⚠️' : '❌'} ${result.message}</h3>
+            </div>
+        `;
+        
+        if (result.status === 'ambiguous' && result.suggestions.length > 0) {
+            this.suggestionsSection.style.display = 'block';
+            this.suggestionsList.innerHTML = '<h4>Please select the company you meant:</h4>';
+            
+            result.suggestions.forEach(suggestion => {
+                const suggestionButton = document.createElement('button');
+                suggestionButton.className = 'suggestion-button';
+                suggestionButton.textContent = suggestion;
+                suggestionButton.addEventListener('click', () => {
+                    this.validationResult = {
+                        status: 'valid',
+                        message: `Selected: ${suggestion}`,
+                        company_name: suggestion
+                    };
+                    this.displayValidationResult(this.validationResult);
+                });
+                this.suggestionsList.appendChild(suggestionButton);
+            });
+        } else {
+            this.suggestionsSection.style.display = 'none';
+        }
+        
+        // Show/hide proceed button based on validation status
+        if (result.status === 'valid') {
+            this.proceedButton.style.display = 'block';
+        } else {
+            this.proceedButton.style.display = 'none';
+        }
+    }
+    
+    showValidationError(message) {
+        this.validationContent.innerHTML = `
+            <div class="error-message" style="color: #dc3545; text-align: center; padding: 20px;">
+                <h3>Error</h3>
+                <p>${message}</p>
+                <button onclick="location.reload()" class="secondary-button">Try Again</button>
+            </div>
+        `;
+    }
+    
     resetForm() {
         this.companyForm.style.display = 'block';
+        this.validationContainer.style.display = 'none';
+        this.researchContainer.style.display = 'none';
         this.resultsContainer.style.display = 'none';
         this.discoveryForm.reset();
+        this.companyInfo = null;
+        this.validationResult = null;
+        this.researchData = null;
+        this.selectedHypotheses = [];
     }
     
     async handleROICalculation(e) {

@@ -61,11 +61,51 @@ async def get_conversation(conversation_id: str):
     conversation = conversation_manager.get_conversation(conversation_id)
     return {"conversation_id": conversation_id, "messages": conversation}
 
-@app.post("/ai-recommendations")
-async def get_ai_recommendations(company_info: dict):
-    """Generate AI project recommendations based on company profile"""
+@app.post("/validate-company")
+async def validate_company(request_data: dict):
+    """Validate if the input is a real company name"""
     try:
-        recommendations = await conversation_manager.ai_client.generate_ai_project_recommendations(company_info)
+        company_name = request_data.get('company_name', '')
+        if not company_name:
+            raise HTTPException(status_code=400, detail="Company name is required")
+        
+        validation = await conversation_manager.ai_client.validate_company_name(company_name)
+        return validation
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/infer-company-details")
+async def infer_company_details(request_data: dict):
+    """Infer industry and company size from company name"""
+    try:
+        company_name = request_data.get('company_name', '')
+        if not company_name:
+            raise HTTPException(status_code=400, detail="Company name is required")
+        
+        details = await conversation_manager.ai_client.infer_company_details(company_name)
+        return details
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/pre-engagement-analysis")
+async def get_pre_engagement_analysis(company_info: dict):
+    """Generate pre-engagement research and hypotheses for a company"""
+    try:
+        analysis = await conversation_manager.ai_client.generate_pre_engagement_analysis(company_info)
+        return analysis
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/ai-recommendations")
+async def get_ai_recommendations(request_data: dict):
+    """Generate AI project recommendations based on company profile and selected hypotheses"""
+    try:
+        company_info = request_data.get('company_info', {})
+        selected_hypotheses = request_data.get('selected_hypotheses', [])
+        
+        recommendations = await conversation_manager.ai_client.generate_ai_project_recommendations(
+            company_info, selected_hypotheses
+        )
         return recommendations
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

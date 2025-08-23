@@ -39,9 +39,9 @@ class CatalogManager:
         """Get all projects for a specific industry"""
         return self.catalog_data.get(industry, [])
     
-    def filter_projects_by_criteria(self, industry: str, company_size: str, role: str, limit: int = 3) -> List[Dict[str, Any]]:
+    def filter_projects_by_criteria(self, industry: str, company_size: str, limit: int = 3) -> List[Dict[str, Any]]:
         """
-        Filter and prioritize projects based on company size, role, and priority
+        Filter and prioritize projects based on company size and priority
         Returns top N projects most suitable for the given criteria
         """
         projects = self.get_projects_for_industry(industry)
@@ -65,18 +65,7 @@ class CatalogManager:
             'enterprise': 1.5
         }
         
-        # Define role preferences (some roles prefer certain types of projects)
-        role_keywords = {
-            'CEO': ['revenue', 'competitive', 'strategic', 'growth', 'market'],
-            'CFO': ['cost', 'risk', 'financial', 'compliance', 'roi', 'efficiency'],
-            'CTO': ['system', 'infrastructure', 'security', 'data', 'platform', 'automation'],
-            'COO': ['operational', 'process', 'efficiency', 'quality', 'supply', 'workflow'],
-            'CMO': ['customer', 'marketing', 'personalized', 'campaign', 'engagement', 'retention'],
-            'CXO': ['customer', 'experience', 'satisfaction', 'service', 'support']
-        }
-        
         size_multiplier = size_multipliers.get(company_size, 1.0)
-        role_keywords_list = role_keywords.get(role, [])
         
         # Score each project
         scored_projects = []
@@ -92,15 +81,8 @@ class CatalogManager:
             elif company_size in ['large', 'enterprise'] and impl_cost > 800:
                 cost_score = 1   # Bonus for complex projects for large companies
             
-            # Role relevance score
-            role_score = 0
-            title_desc = (project.get('title', '') + ' ' + project.get('description', '')).lower()
-            for keyword in role_keywords_list:
-                if keyword in title_desc:
-                    role_score += 1
-            
             # Calculate final score
-            final_score = (priority_score + cost_score + role_score * 0.5) * size_multiplier
+            final_score = (priority_score + cost_score) * size_multiplier
             
             scored_projects.append({
                 **project,

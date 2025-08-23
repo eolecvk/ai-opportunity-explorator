@@ -20,41 +20,7 @@
                     <div class="input-group">
                         <label for="companyName">Company Name</label>
                         <input type="text" id="companyName" name="companyName" required 
-                               placeholder="Enter your company name">
-                    </div>
-
-                    <div class="input-group">
-                        <label for="industry">Industry</label>
-                        <select id="industry" name="industry" required>
-                            <option value="">Select your industry</option>
-                            <option value="banking">Banking</option>
-                            <option value="insurance">Insurance</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="companySize">Company Size</label>
-                        <select id="companySize" name="companySize" required>
-                            <option value="">Select company size</option>
-                            <option value="startup">Startup (1-50 employees)</option>
-                            <option value="small">Small (51-250 employees)</option>
-                            <option value="medium">Medium (251-1000 employees)</option>
-                            <option value="large">Large (1001-5000 employees)</option>
-                            <option value="enterprise">Enterprise (5000+ employees)</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label for="interlocutorRole">Your Role</label>
-                        <select id="interlocutorRole" name="interlocutorRole" required>
-                            <option value="">Select your role</option>
-                            <option value="CEO">CEO - Chief Executive Officer</option>
-                            <option value="CFO">CFO - Chief Financial Officer</option>
-                            <option value="CTO">CTO - Chief Technology Officer</option>
-                            <option value="CXO">CXO - Chief Experience Officer</option>
-                            <option value="COO">COO - Chief Operating Officer</option>
-                            <option value="CMO">CMO - Chief Marketing Officer</option>
-                        </select>
+                               placeholder="Enter your company name (e.g., Apple, Goldman Sachs, Tesla)">
                     </div>
 
                     <button type="submit" id="discoverButton" class="primary-button">
@@ -64,18 +30,73 @@
             </div>
         </div>
 
+        <div class="validation-container" id="validationContainer" style="display: none;">
+            <div class="loading" id="validationLoadingIndicator">
+                <div class="spinner"></div>
+                <p>Validating company name...</p>
+            </div>
+            
+            <div class="validation-content" id="validationContent" style="display: none;">
+                <h2>Company Validation</h2>
+                <div class="validation-message" id="validationMessage"></div>
+                <div class="suggestions-section" id="suggestionsSection" style="display: none;">
+                    <div id="suggestionsList"></div>
+                </div>
+                <div class="validation-actions" id="validationActions">
+                    <button id="proceedButton" class="primary-button" style="display: none;">
+                        Proceed with Analysis
+                    </button>
+                    <button id="backToInputButton" class="secondary-button">
+                        Back to Company Name
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="research-container" id="researchContainer" style="display: none;">
+            <div class="loading" id="researchLoadingIndicator">
+                <div class="spinner"></div>
+                <p>Analyzing company details and conducting pre-engagement research...</p>
+            </div>
+            
+            <div class="research-content" id="researchContent" style="display: none;">
+                <h2>Pre-Engagement Research & Analysis</h2>
+                <div class="research-section" id="researchFindings">
+                    <h3>📋 Initial Research Findings</h3>
+                    <ul id="researchFindingsList"></ul>
+                </div>
+                
+                <div class="hypothesis-section" id="hypothesisSection">
+                    <h3>💡 Strategic Hypotheses</h3>
+                    <p>Select the hypotheses that resonate most with your company's current situation:</p>
+                    <div id="hypothesesList"></div>
+                    
+                    <div class="actions">
+                        <button id="validateHypothesesButton" class="primary-button" disabled>
+                            Validate Selected Hypotheses & Get Recommendations
+                        </button>
+                        <button id="backToFormButton" class="secondary-button">Back to Company Info</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="results-container" id="resultsContainer" style="display: none;">
             <div class="loading" id="loadingIndicator">
                 <div class="spinner"></div>
-                <p>Analyzing your company profile and identifying AI opportunities...</p>
+                <p>Generating AI project recommendations based on validated hypotheses...</p>
             </div>
             
             <div class="results-content" id="resultsContent" style="display: none;">
-                <h2>AI Project Recommendations</h2>
+                <div class="selected-hypotheses" id="selectedHypothesesDisplay" style="display: none;">
+                    <h3>🎯 Based on Selected Hypotheses</h3>
+                    <ul id="selectedHypothesesList"></ul>
+                </div>
                 <div class="recommendations" id="recommendations"></div>
                 
                 <div class="actions">
                     <button id="newAnalysisButton" class="secondary-button">New Analysis</button>
+                    <button id="backToHypothesesButton" class="secondary-button">Back to Hypotheses</button>
                 </div>
             </div>
         </div>
